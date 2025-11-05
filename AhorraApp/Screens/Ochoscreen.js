@@ -26,7 +26,7 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
       <View style={estilos.saldoTarjeta}>
         
         <TouchableOpacity style={estilos.iconoCasa} onPress={() => {}}>
-          <Ionicons name="home-outline" size={22} color="#888" />
+          <Text>🏦</Text>
         </TouchableOpacity>
 
         <View style={{ flex: 1 }}>
