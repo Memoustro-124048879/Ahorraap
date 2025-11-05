@@ -18,6 +18,7 @@ const color = {
 const mostrarAlerta = (mensaje) => {
   const titulo = "Función No Disponible";
   if (Platform.OS === "web") {
+    console.log("ALERTA INTENTADA (Web): " + mensaje);
     window.alert(`${titulo}\n${mensaje}`);
   } else {
     Alert.alert(titulo, mensaje);
@@ -67,16 +68,28 @@ export default function Docescreen() {
   
     const [transferencias] = useState([]);
     
+    const [feedbackMessage, setFeedbackMessage] = useState(
+        "Aquí se mostraría la lista de transferencias filtradas."
+    );
+
     const handleAction = (action) => {
         mostrarAlerta(`Presionaste el botón de acción: ${action}.`);
+        setFeedbackMessage(`Acción: ${action} registrada en pantalla.`);
     };
-  
+
+    const handleFilter = (filterType) => {
+        mostrarAlerta(`Aplicando filtro: ${filterType}.`);
+        setFeedbackMessage(`Filtro aplicado por: ${filterType}. ¡Visualización simulada!`);
+    };
+    
     const mostrarAlertaInicio = () => {
         mostrarAlerta("Navegando a la pantalla de Inicio/Home.");
+        setFeedbackMessage("Navegando a Inicio.");
     };
 
     const handleNavPress = (iconName) => {
         mostrarAlerta(`Navegando a la sección: ${iconName}.`);
+        setFeedbackMessage(`Navegando a: ${iconName}.`);
     };
 
     return (
@@ -99,6 +112,11 @@ export default function Docescreen() {
                         >
                             <Text style={estilos.textoBotonFiltro}>Filtrar por categoría</Text>
                         </TouchableOpacity>
+                    </View>
+                    <View style={estilos.espacioVacio}>
+                        <Text style={estilos.textoSuave}>
+                            {feedbackMessage}
+                        </Text>
                     </View>
                 
                 </View>
@@ -177,7 +195,7 @@ const estilos = StyleSheet.create({
     },
     filtrosFila: {
         flexDirection: 'row',
-        justifyContent: 'center', 
+        justifyContent: 'center',
         marginBottom: 14,
         paddingHorizontal: 0,
     },
@@ -187,7 +205,7 @@ const estilos = StyleSheet.create({
         paddingHorizontal: 14,
         marginRight: 10,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
+        shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.0, 
         shadowRadius: 0,
         elevation: 0,
