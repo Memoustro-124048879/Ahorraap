@@ -47,18 +47,18 @@ export default function MenuScreen() {
       return (
         <View style={styles.botonesContainer}>
           <Text style={styles.menuTitle}>Menú de Screens</Text>
-          <Button title="ScreenUno" onPress={() => setScreen('uno')} />
-            <Button title="ScreenDos" onPress={() => setScreen('dos')} />
-            <Button title="ScreenTres" onPress={() => setScreen('tres')} />
-            <Button title="ScreenCuatro" onPress={() => setScreen('cuatro')} />
-            <Button title="ScreenCinco" onPress={() => setScreen('cinco')} />
-            <Button title="ScreenSeis" onPress={() => setScreen('seis')} />
-            <Button title="ScreenSiete" onPress={() => setScreen('siete')} />
-            <Button title="ScreenOcho" onPress={() => setScreen('ocho')} />
-            <Button title="ScreenNueve" onPress={() => setScreen('nueve')} />
-            <Button title="ScreenDiez" onPress={() => setScreen('diez')} />
-            <Button title="ScreenOnce" onPress={() => setScreen('once')} />
-            <Button title="ScreenDoce" onPress={() => setScreen('doce')} />        
+          <Button title="Inicio" onPress={() => setScreen('uno')} />
+            <Button title="Login" onPress={() => setScreen('dos')} />
+            <Button title="Registro" onPress={() => setScreen('tres')} />
+            <Button title="Transacciones" onPress={() => setScreen('cuatro')} />
+            <Button title="Graficas" onPress={() => setScreen('cinco')} />
+            <Button title="Presupuestos" onPress={() => setScreen('seis')} />
+            <Button title="Centro de notificaciones" onPress={() => setScreen('siete')} />
+            <Button title="Registro de transferencias" onPress={() => setScreen('ocho')} />
+            <Button title="Nueva transferencia" onPress={() => setScreen('nueve')} />
+            <Button title="Agregar presupuesto" onPress={() => setScreen('diez')} />
+            <Button title="Editado de las transferencias" onPress={() => setScreen('once')} />
+            <Button title="Listado de las transferencias" onPress={() => setScreen('doce')} />        
         </View>
       );
   }
