@@ -71,7 +71,7 @@ export default function Oncescreen() {
     const handleAction = (action) => {
         mostrarAlerta(`Presionaste el botón de acción: ${action}.`);
     };
-  
+
     const mostrarAlertaInicio = () => {
         mostrarAlerta("Navegando a la pantalla de Inicio/Home.");
     };
@@ -95,18 +95,21 @@ export default function Oncescreen() {
                     <View style={estilos.accionesFila}>
                         <TouchableOpacity 
                             style={[estilos.botonAccion, { backgroundColor: color.botonListar }]}
+                            onPress={() => handleAction('Listar')}
                         >
                             <Text style={estilos.textoBotonAccion}>Listar</Text>
                         </TouchableOpacity>
                         
                         <TouchableOpacity 
                             style={[estilos.botonAccion, { backgroundColor: color.botonEditar }]}
+                            onPress={() => handleAction('Editar')}
                         >
                             <Text style={estilos.textoBotonAccion}>Editar</Text>
                         </TouchableOpacity>
                         
                         <TouchableOpacity 
                             style={[estilos.botonAccion, { backgroundColor: color.botonEliminar }]}
+                            onPress={() => handleAction('Eliminar')}
                         >
                             <Text style={estilos.textoBotonAccion}>Eliminar</Text>
                         </TouchableOpacity>
