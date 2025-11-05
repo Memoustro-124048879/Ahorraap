@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 
 const AHORRA_APP_LOGO = require('../assets/ahorra_app_logo.jpg');
 
@@ -24,7 +24,7 @@ const CustomInput = ({
 
 export default function Tresscreen() {
   return (
-    <View style={styles.fullScreenContainer}>
+    <SafeAreaView style={styles.fullScreenContainer}>
       <View style={styles.formContainer}> 
         <View style={styles.logoTextContainer}>
         <Image 
@@ -60,7 +60,7 @@ export default function Tresscreen() {
           <Text style={styles.buttonText}>Listo</Text>
         </TouchableOpacity>
     </View>    
-    </View>    
+    </SafeAreaView>    
   );
 }
 
