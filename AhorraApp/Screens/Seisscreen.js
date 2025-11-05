@@ -27,7 +27,7 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
     <View style={estilos.encabezado}>
       <Text style={estilos.titulo}>{titulo}</Text>
       <View style={estilos.saldoTarjeta}>
-        <TouchableOpacity><Ionicons name="home-outline" size={26} color={color.verde}style={{ marginRight: 12 }}/></TouchableOpacity>
+        <TouchableOpacity>🏦</TouchableOpacity>
 
         <View style={{ flex: 1 }}>
           <Text style={estilos.saldo}>{saldo.toLocaleString("es-MX")}</Text>
