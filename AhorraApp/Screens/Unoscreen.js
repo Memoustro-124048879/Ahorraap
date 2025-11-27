@@ -1,4 +1,4 @@
-// screens/ProyectoScreen.js
+// screens/Unoscreen.js
 import React from 'react';
 import {
   View,
@@ -11,46 +11,34 @@ import {
 
 const logoCerdito = require('../assets/ahorra_app_logo.jpg');
 
+const ProyectoScreen = ({ navigation }) => { 
 
-const ProyectoScreen = () => { 
-
-  // --- Colores del diseño ---
+ 
   const colorVerdePrincipal = '#469A49';
   const colorTextoOscuro = '#333333';
   const colorTextoClaro = '#555555';
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      
-
-
       <View style={styles.mainContainer}>
         
-        
-        
         <Image source={logoCerdito} style={styles.logoImage} />
-
 
         <Text style={[styles.subtitle, { color: colorTextoClaro }]}>
           Cuida de tu dinero con
         </Text>
-
-       
        
         <Text style={[styles.title, { color: colorTextoOscuro }]}>
           Ahorra+
         </Text>
-
-       
        
         <Text style={[styles.title, { color: colorTextoOscuro }]}>
           App
         </Text>
-
        
         <TouchableOpacity 
           style={[styles.loginButton, { backgroundColor: colorVerdePrincipal }]}
-          onPress={() => console.log('Botón "Iniciar Sesión" presionado')}
+          onPress={() => navigation.navigate('Login')}
         >
           <Text style={styles.loginButtonText}>Iniciar sesión</Text>
         </TouchableOpacity>
@@ -63,9 +51,8 @@ const ProyectoScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF', // Fondo blanco
+    backgroundColor: '#FFFFFF', 
   },
- 
   mainContainer: {
     flex: 1,
     justifyContent: 'center', 

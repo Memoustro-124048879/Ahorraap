@@ -1,4 +1,4 @@
-// screens/LoginScreen.js
+// screens/Dosscreen.js
 import React, { useState } from 'react';
 import {
   View,
@@ -14,34 +14,62 @@ import {
 
 const logoAhorrapp = require('../assets/full.jpg');
 
-const LoginScreen = () => {
+const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   
   const [modalVisible, setModalVisible] = useState(false);
   const [emailRecuperacion, setEmailRecuperacion] = useState('');
-
   
   const colorVerdePrincipal = '#469A49';
   const colorGrisInput = '#EAEAEA';
   const colorGrisTexto = '#A9A9A9';
   const colorLink = '#007BFF';
-
   
+  
+  const handleLogin = () => {
+    
+    
+    if (email.trim() === '' && password.trim() === '') {
+      Alert.alert('Campos vacíos', 'Ambos campos no pueden estar vacíos. Por favor ingresa tus datos.');
+      return; 
+    }
+
+    
+    if (email.trim() === '') {
+      Alert.alert('Correo requerido', 'El campo de correo no puede estar vacío.');
+      return; 
+    }
+
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Correo inválido', 'El correo debe ser válido (ej: usuario@gmail.com).');
+      return; 
+    }
+
+   
+    if (password.trim() === '') {
+      Alert.alert('Contraseña requerida', 'Por favor, escribe tu contraseña para ingresar.');
+      return; 
+    }
+
+   
+    console.log('Login exitoso con:', email);
+    navigation.navigate('Transacciones'); 
+  };
+
   const handleEnviarRecuperacion = () => {
-    if (!emailRecuperacion) {
-      Alert.alert('Error', 'Por favor, ingresa un correo válido.');
+  
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRecuperacion || !emailRegex.test(emailRecuperacion)) {
+      Alert.alert('Error', 'Por favor, ingresa un correo válido completo.');
       return;
     }
     
-    
     console.log('Enviando instrucciones a:', emailRecuperacion);
-
     setModalVisible(false);
     setEmailRecuperacion('');
-
-    
     Alert.alert(
       '¡Revisa tu correo!',
       `Se han enviado las instrucciones de recuperación a ${emailRecuperacion}.`
@@ -52,16 +80,14 @@ const LoginScreen = () => {
     <SafeAreaView style={styles.safeArea}>
     
       <View style={styles.mainContainer}>
-        
        
         <Image source={logoAhorrapp} style={styles.logoImage} />
-
        
         <View style={[styles.inputContainer, { backgroundColor: colorGrisInput }]}>
           <Text style={styles.icon}>👤</Text>
           <TextInput
             style={styles.input}
-            placeholder="Correo/Num telefono"
+            placeholder="Correo electrónico"
             placeholderTextColor={colorGrisTexto}
             value={email}
             onChangeText={setEmail}
@@ -82,13 +108,13 @@ const LoginScreen = () => {
           />
         </View>
 
+        {/* BOTÓN INGRESAR */}
         <TouchableOpacity 
           style={[styles.loginButton, { backgroundColor: colorVerdePrincipal }]}
-          onPress={() => console.log('Login con:', email, password)}
+          onPress={handleLogin} 
         >
           <Text style={styles.loginButtonText}>Ingresar</Text>
         </TouchableOpacity>
-
         
         <TouchableOpacity 
           onPress={() => setModalVisible(true)} 
@@ -98,7 +124,7 @@ const LoginScreen = () => {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => console.log('Ir a registrarse')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
           <Text style={[styles.linkText, { color: colorLink, marginTop: 15 }]}>
             ¿No tienes una cuenta? Regístrate aquí
           </Text>
@@ -106,6 +132,7 @@ const LoginScreen = () => {
 
       </View>
 
+      {/* MODAL DE RECUPERACIÓN */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -114,9 +141,7 @@ const LoginScreen = () => {
           setModalVisible(false);
         }}
       >
-       
         <View style={styles.modalContainer}>
-         
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Recuperar Contraseña</Text>
             <Text style={styles.modalSubtitle}>
@@ -132,7 +157,6 @@ const LoginScreen = () => {
               keyboardType="email-address"
               autoCapitalize="none"
             />
-
             
             <View style={styles.modalButtonContainer}>
               <TouchableOpacity
@@ -156,7 +180,6 @@ const LoginScreen = () => {
     </SafeAreaView>
   );
 };
-
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -210,8 +233,6 @@ const styles = StyleSheet.create({
   linkText: {
     fontSize: 15,
   },
-
-  // --- Estilos para el Modal ---
   modalContainer: {
     flex: 1,
     justifyContent: 'center',

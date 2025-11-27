@@ -1,5 +1,19 @@
+// screens/Tresscreen.js
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Alert } from 'react-native';
+import { 
+  StyleSheet, 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  Image, 
+  SafeAreaView, 
+  Alert,
+  Platform 
+} from 'react-native';
+
+
+import { Ionicons } from '@expo/vector-icons';
 
 const AHORRA_APP_LOGO = require('../assets/ahorra_app_logo.jpg');
 
@@ -25,11 +39,21 @@ const CustomInput = ({
   </View>
 );
 
-export default function Tresscreen() {
+
+export default function Tresscreen({ navigation }) {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+
+ 
+  const mostrarAlerta = (titulo, mensaje) => {
+    if (Platform.OS === 'web') {
+      window.alert(`${titulo}\n${mensaje}`);
+    } else {
+      Alert.alert(titulo, mensaje);
+    }
+  };
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -47,16 +71,32 @@ export default function Tresscreen() {
       return;
     }
 
+    
     mostrarAlerta('Registro exitoso', `¡Bienvenido(a) ${fullName}! Tus datos han sido registrados.`);
     
+   
     setFullName('');
     setEmail('');
     setPhone('');
     setPassword('');
+
+    
   };
+
   return (
     <SafeAreaView style={styles.fullScreenContainer}>
+      
+      {/* --- BOTÓN DE REGRESAR (NUEVO) --- */}
+      <TouchableOpacity 
+        style={styles.backButton} 
+        onPress={() => navigation.goBack()} 
+      >
+        <Ionicons name="arrow-back" size={28} color="#333" />
+      </TouchableOpacity>
+      {/* ---------------------------------- */}
+
       <View style={styles.formContainer}>
+        
         <View style={styles.logoTextContainer}>
           <Image
             source={AHORRA_APP_LOGO}
@@ -68,6 +108,7 @@ export default function Tresscreen() {
             <Text style={styles.AppText}>App</Text>
           </View>
         </View>
+
         <CustomInput
           placeholder="👤 Nombre completo"
           value={fullName}
@@ -91,6 +132,7 @@ export default function Tresscreen() {
           value={password}
           onChangeText={setPassword}
         />
+
         <TouchableOpacity
           style={styles.button}
           onPress={handleRegister}
@@ -98,6 +140,15 @@ export default function Tresscreen() {
         >
           <Text style={styles.buttonText}>Listo</Text>
         </TouchableOpacity>
+
+        
+        <TouchableOpacity 
+          style={{ marginTop: 20 }}
+          onPress={() => navigation.navigate('Login')}
+        >
+          <Text style={{ color: '#007BFF' }}>¿Ya tienes cuenta? Inicia sesión</Text>
+        </TouchableOpacity>
+
       </View>
     </SafeAreaView>
   );
@@ -110,10 +161,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  
+  backButton: {
+    position: 'absolute',
+    top: 50,  
+    left: 20,
+    zIndex: 10, 
+    padding: 10, 
+  },
   formContainer: {
     width: '85%',
     alignItems: 'center',
-    marginTop: 50,
+    marginTop: 20, 
   },
   AhorraText: {
     fontSize: 30,
