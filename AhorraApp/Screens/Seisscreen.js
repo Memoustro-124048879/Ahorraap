@@ -1,5 +1,6 @@
+// screens/Seisscreen.js
 import React from "react";
-import {Platform,View,Text,TouchableOpacity,StyleSheet,Alert,} from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 const color = {
@@ -14,39 +15,23 @@ const color = {
   rojo: "#d9534f",
 };
 
+// --- ENCABEZADO ESTANDARIZADO ---
 function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
-  const handleNotificaciones = () => {
-    if (Platform.OS === "web") {
-      window.alert("No tienes notificaciones nuevas");
-    } else {
-      Alert.alert("Notificaciones", "No tienes notificaciones nuevas");
-    }
-  };
-
   return (
     <View style={estilos.encabezado}>
       <Text style={estilos.titulo}>{titulo}</Text>
       <View style={estilos.saldoTarjeta}>
-        <TouchableOpacity>🏦</TouchableOpacity>
-
-        <View style={{ flex: 1 }}>
+        <TouchableOpacity><Text style={{fontSize:24}}>🏦</Text></TouchableOpacity>
+        <View style={{ flex: 1, marginLeft: 10 }}>
           <Text style={estilos.saldo}>{saldo.toLocaleString("es-MX")}</Text>
           <Text style={estilos.moneda}>{moneda}</Text>
         </View>
-
         <View style={estilos.iconosAccion}>
-          <TouchableOpacity
-            style={{ marginRight: 8 }}
-            onPress={handleNotificaciones}
-          >
-            <Ionicons
-              name="notifications-outline"
-              size={20}
-              color={color.verde}
-            />
+          <TouchableOpacity style={{ marginRight: 15 }}>
+            <Ionicons name="notifications-outline" size={24} color={color.verde} />
           </TouchableOpacity>
           <TouchableOpacity>
-            <Ionicons name="settings-outline" size={20} color={color.verde} />
+            <Ionicons name="settings-outline" size={24} color={color.verde} />
           </TouchableOpacity>
         </View>
       </View>
@@ -54,45 +39,13 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
   );
 }
 
-export default function PresupuestoScreen() {
+export default function PresupuestoScreen({ navigation }) { 
   const presupuestos = [
     { id: 1, texto: "1500MXN / Ropa para bebé" },
     { id: 2, texto: "500MXN / Gimnasio" },
   ];
 
-  const handleEditar = () => {
-    const mensaje = "¿Seguro que quieres editar este presupuesto?";
-    if (Platform.OS === "web") {
-      window.alert(mensaje);
-    } else {
-      Alert.alert("Editar presupuesto", mensaje);
-    }
-  };
-
-  const handleEliminar = () => {
-    const mensaje = "¿Seguro que quieres eliminar este presupuesto?";
-    if (Platform.OS === "web") {
-      window.alert(mensaje);
-    } else {
-      Alert.alert("Eliminar presupuesto", mensaje);
-    }
-  };
-
-  const handleAgregarPresupuesto = () => {
-    if (Platform.OS === "web") {
-      window.alert("¿Deseas agregar un nuevo presupuesto?");
-    } else {
-      Alert.alert("¿Deseas agregar un nuevo presupuesto?");
-    }
-  };
-
-  const handleHomePress = () => {
-    if (Platform.OS === "web") {
-      window.alert("¿Deseas regresar a la pantalla principal?");
-    } else {
-      Alert.alert("Inicio", "¿Deseas regresar a la pantalla principal?");
-    }
-  };
+  const irA = (pantalla) => navigation.navigate(pantalla);
 
   return (
     <View style={estilos.pantalla}>
@@ -106,12 +59,11 @@ export default function PresupuestoScreen() {
             {presupuestos.map((item) => (
               <View key={item.id} style={estilos.itemPresupuesto}>
                 <Text style={estilos.textoPresupuesto}>{item.texto}</Text>
-
                 <View style={estilos.contenedorAcciones}>
-                  <TouchableOpacity onPress={handleEditar}>
+                  <TouchableOpacity onPress={() => Alert.alert("Editar", "Función pendiente")}>
                     <Text style={estilos.textoEditar}>editar</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={handleEliminar}>
+                  <TouchableOpacity onPress={() => Alert.alert("Eliminar", "Función pendiente")}>
                     <Text style={estilos.textoEliminar}>eliminar</Text>
                   </TouchableOpacity>
                 </View>
@@ -121,27 +73,28 @@ export default function PresupuestoScreen() {
 
           <TouchableOpacity
             style={estilos.botonAgregar}
-            onPress={handleAgregarPresupuesto}
+            onPress={() => irA("AgregarPresupuesto")} 
           >
             <Text style={estilos.textoBoton}>Agregar presupuesto</Text>
           </TouchableOpacity>
         </View>
       </View>
 
+      {/* --- BARRA INFERIOR ESTANDARIZADA --- */}
       <View style={estilos.barraInferior}>
         <TouchableOpacity style={estilos.icono}>
           <Ionicons name="person-outline" size={26} color="gray" />
         </TouchableOpacity>
 
         <TouchableOpacity style={estilos.icono}>
-          <Ionicons name="document-text-outline" size={26} color="gray" />
+          <Ionicons name="document-text" size={26} color={color.verde} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={estilos.botonCentral} onPress={handleHomePress}>
+        <TouchableOpacity style={estilos.botonCentral} onPress={() => irA("Transacciones")}>
           <Ionicons name="home-outline" size={30} color="white" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={estilos.icono}>
+        <TouchableOpacity style={estilos.icono} onPress={() => irA("Graficas")}>
           <Ionicons name="stats-chart-outline" size={26} color="gray" />
         </TouchableOpacity>
 
@@ -155,24 +108,70 @@ export default function PresupuestoScreen() {
 
 const estilos = StyleSheet.create({
   pantalla: { flex: 1, backgroundColor: color.fondo },
+  
+  // --- ESTILOS IDÉNTICOS A CUATROSCREEN ---
   encabezado: {
     backgroundColor: color.verde,
-    paddingTop: 6,
-    paddingBottom: 12,
+    paddingTop: 40,
+    paddingBottom: 20,
     paddingHorizontal: 16,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: {width: 0, height: 2}
   },
-  titulo: { color: "white", fontSize: 16, marginBottom: 8, fontWeight: "600" },
+  titulo: { color: "white", fontSize: 18, marginBottom: 15, fontWeight: "bold", textAlign: 'center' },
   saldoTarjeta: {
     backgroundColor: color.tarjeta,
     borderRadius: 16,
     padding: 16,
     flexDirection: "row",
     alignItems: "center",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: {width: 0, height: 2}
   },
   iconosAccion: { flexDirection: "row", marginLeft: 12 },
-  saldo: { fontSize: 28, fontWeight: "800", color: color.texto },
-  moneda: { fontSize: 12, color: color.textoSuave },
-  cuerpo: { paddingHorizontal: 16, marginTop: 14, flex: 1 },
+  saldo: { fontSize: 26, fontWeight: "800", color: color.texto },
+  moneda: { fontSize: 12, color: color.textoSuave, fontWeight: '600' },
+
+  barraInferior: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingBottom: 20,
+    borderTopWidth: 1,
+    borderColor: "#f0f0f0",
+    elevation: 10,
+  },
+  icono: { alignItems: "center", justifyContent: "center", flex: 1, paddingVertical: 10 },
+  botonCentral: {
+    width: 65,
+    height: 65,
+    borderRadius: 35,
+    backgroundColor: color.verde,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: -40,
+    elevation: 8,
+    shadowColor: "#2f8a4f",
+    shadowOpacity: 0.4,
+    shadowOffset: {width: 0, height: 4},
+    borderWidth: 4,
+    borderColor: "#f1f2f3"
+  },
+  // ----------------------------------------
+
+  cuerpo: { paddingHorizontal: 16, marginTop: 20, flex: 1, paddingBottom: 90 },
   cajaBlanca: {
     flex: 1,
     backgroundColor: color.tarjeta,
@@ -180,12 +179,7 @@ const estilos = StyleSheet.create({
     padding: 16,
     justifyContent: "flex-start",
   },
-  textoTitulo: {
-    fontWeight: "700",
-    color: color.texto,
-    fontSize: 16,
-    marginBottom: 8,
-  },
+  textoTitulo: { fontWeight: "700", color: color.texto, fontSize: 16, marginBottom: 8 },
   cuadroPresupuesto: {
     flex: 1,
     backgroundColor: color.rosado,
@@ -203,25 +197,10 @@ const estilos = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  contenedorAcciones: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  textoPresupuesto: {
-    color: color.texto,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  textoEditar: {
-    color: color.verde,
-    fontSize: 13,
-    fontWeight: "500",
-  },
-  textoEliminar: {
-    color: color.rojo,
-    fontSize: 13,
-    fontWeight: "500",
-  },
+  contenedorAcciones: { flexDirection: "row", gap: 10 },
+  textoPresupuesto: { color: color.texto, fontSize: 14, fontWeight: "600" },
+  textoEditar: { color: color.verde, fontSize: 13, fontWeight: "500" },
+  textoEliminar: { color: color.rojo, fontSize: 13, fontWeight: "500" },
   botonAgregar: {
     alignSelf: "flex-end",
     backgroundColor: color.verde,
@@ -229,46 +208,6 @@ const estilos = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 16,
     marginTop: 10,
-    marginBottom: 70,
   },
-  textoBoton: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 13,
-  },
-  barraInferior: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderColor: "#ddd",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 5,
-  },
-  icono: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-  botonCentral: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: color.verde,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: -30,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 8,
-  },
+  textoBoton: { color: "white", fontWeight: "600", fontSize: 13 },
 });
