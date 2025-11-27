@@ -2,7 +2,6 @@ import React from "react";
 import {Platform,View,Text,TouchableOpacity,StyleSheet,Alert,} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-
 const color = {
   fondo: "#f1f2f3",
   verde: "#2f8a4f",
@@ -12,6 +11,7 @@ const color = {
   verdeSuave: "#b8e0c2",
   texto: "#101010",
   textoSuave: "#666",
+  rojo: "#d9534f",
 };
 
 function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
@@ -35,10 +35,19 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
         </View>
 
         <View style={estilos.iconosAccion}>
-          <TouchableOpacity style={{ marginRight: 8 }}onPress={handleNotificaciones}>
-            <Ionicons name="notifications-outline"size={20}color={color.verde}/>
+          <TouchableOpacity
+            style={{ marginRight: 8 }}
+            onPress={handleNotificaciones}
+          >
+            <Ionicons
+              name="notifications-outline"
+              size={20}
+              color={color.verde}
+            />
           </TouchableOpacity>
-          <TouchableOpacity><Ionicons name="settings-outline" size={20} color={color.verde} /></TouchableOpacity>
+          <TouchableOpacity>
+            <Ionicons name="settings-outline" size={20} color={color.verde} />
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -57,6 +66,15 @@ export default function PresupuestoScreen() {
       window.alert(mensaje);
     } else {
       Alert.alert("Editar presupuesto", mensaje);
+    }
+  };
+
+  const handleEliminar = () => {
+    const mensaje = "¿Seguro que quieres eliminar este presupuesto?";
+    if (Platform.OS === "web") {
+      window.alert(mensaje);
+    } else {
+      Alert.alert("Eliminar presupuesto", mensaje);
     }
   };
 
@@ -88,27 +106,48 @@ export default function PresupuestoScreen() {
             {presupuestos.map((item) => (
               <View key={item.id} style={estilos.itemPresupuesto}>
                 <Text style={estilos.textoPresupuesto}>{item.texto}</Text>
-                <TouchableOpacity onPress={handleEditar}><Text style={estilos.textoEditar}>editar</Text></TouchableOpacity>
+
+                <View style={estilos.contenedorAcciones}>
+                  <TouchableOpacity onPress={handleEditar}>
+                    <Text style={estilos.textoEditar}>editar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleEliminar}>
+                    <Text style={estilos.textoEliminar}>eliminar</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ))}
           </View>
 
-          <TouchableOpacity style={estilos.botonAgregar}onPress={handleAgregarPresupuesto}>
+          <TouchableOpacity
+            style={estilos.botonAgregar}
+            onPress={handleAgregarPresupuesto}
+          >
             <Text style={estilos.textoBoton}>Agregar presupuesto</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       <View style={estilos.barraInferior}>
-        <TouchableOpacity style={estilos.icono}><Ionicons name="person-outline" size={26} color="gray" /></TouchableOpacity>
+        <TouchableOpacity style={estilos.icono}>
+          <Ionicons name="person-outline" size={26} color="gray" />
+        </TouchableOpacity>
 
-        <TouchableOpacity style={estilos.icono}><Ionicons name="document-text-outline" size={26} color="gray" /></TouchableOpacity>
+        <TouchableOpacity style={estilos.icono}>
+          <Ionicons name="document-text-outline" size={26} color="gray" />
+        </TouchableOpacity>
 
-        <TouchableOpacity style={estilos.botonCentral} onPress={handleHomePress}><Ionicons name="home-outline" size={30} color="white" /></TouchableOpacity>
+        <TouchableOpacity style={estilos.botonCentral} onPress={handleHomePress}>
+          <Ionicons name="home-outline" size={30} color="white" />
+        </TouchableOpacity>
 
-        <TouchableOpacity style={estilos.icono}><Ionicons name="stats-chart-outline" size={26} color="gray" /></TouchableOpacity>
+        <TouchableOpacity style={estilos.icono}>
+          <Ionicons name="stats-chart-outline" size={26} color="gray" />
+        </TouchableOpacity>
 
-        <TouchableOpacity style={estilos.icono}><Ionicons name="calendar-outline" size={26} color="gray" /></TouchableOpacity>
+        <TouchableOpacity style={estilos.icono}>
+          <Ionicons name="calendar-outline" size={26} color="gray" />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -164,6 +203,10 @@ const estilos = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  contenedorAcciones: {
+    flexDirection: "row",
+    gap: 10,
+  },
   textoPresupuesto: {
     color: color.texto,
     fontSize: 14,
@@ -171,6 +214,11 @@ const estilos = StyleSheet.create({
   },
   textoEditar: {
     color: color.verde,
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  textoEliminar: {
+    color: color.rojo,
     fontSize: 13,
     fontWeight: "500",
   },
