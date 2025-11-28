@@ -1,3 +1,4 @@
+//BARBARA
 import React from "react";
 import {Platform,View,Text,TouchableOpacity,StyleSheet,Alert,} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
