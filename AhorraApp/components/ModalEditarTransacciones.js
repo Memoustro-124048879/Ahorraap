@@ -1,23 +1,17 @@
 import React, { useState } from "react";
-import {
-  Modal,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet
-} from "react-native";
+import {Modal,View,Text,TextInput,TouchableOpacity,StyleSheet,Platform,ScrollView,Alert} from "react-native";
 
 export default function ModalEditarTransacciones({
   visible,
   onClose,
   onSave,
-  transaccion = {}
 }) {
-  const [monto, setMonto] = useState(transaccion.monto || "");
-  const [descripcion, setDescripcion] = useState(transaccion.descripcion || "");
-  const [categoria, setCategoria] = useState(transaccion.categoria || "");
-  const [fecha, setFecha] = useState(transaccion.fecha || "");
+  const [tipo, setTipo] = useState("");
+  const [monto, setMonto] = useState("");
+  const [categoria, setCategoria] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [fecha, setFecha] = useState("");
+  const [metodoPago, setMetodoPago] = useState("");
 
   return (
     <Modal
@@ -28,38 +22,77 @@ export default function ModalEditarTransacciones({
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-
           <Text style={styles.modalTitle}>Editar Transacción</Text>
 
-          <TextInput
-            style={styles.modalInput}
-            placeholder="Monto"
-            keyboardType="numeric"
-            value={monto}
-            onChangeText={setMonto}
-          />
+          <ScrollView
+            style={{ width: "100%" }}
+            contentContainerStyle={{ paddingBottom: 10 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* TIPO */}
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Tipo (Ingreso / Gasto)"
+              placeholderTextColor="#777"
+              value={tipo}
+              onChangeText={setTipo}
+              multiline={false}
+            />
 
-          <TextInput
-            style={styles.modalInput}
-            placeholder="Descripción"
-            value={descripcion}
-            onChangeText={setDescripcion}
-          />
+            {/* MONTO */}
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Monto"
+              placeholderTextColor="#777"
+              keyboardType="numeric"
+              value={monto}
+              onChangeText={setMonto}
+              multiline={false}
+            />
 
-          <TextInput
-            style={styles.modalInput}
-            placeholder="Categoría"
-            value={categoria}
-            onChangeText={setCategoria}
-          />
+            {/* CATEGORÍA */}
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Categoría (Comida, transporte...)"
+              placeholderTextColor="#777"
+              value={categoria}
+              onChangeText={setCategoria}
+              multiline={false}
+            />
 
-          <TextInput
-            style={styles.modalInput}
-            placeholder="Fecha (YYYY-MM-DD)"
-            value={fecha}
-            onChangeText={setFecha}
-          />
+            {/* DESCRIPCIÓN */}
+            <TextInput
+              style={[styles.modalInput, styles.largeInput]}
+              placeholder="Descripción"
+              placeholderTextColor="#777"
+              value={descripcion}
+              onChangeText={setDescripcion}
+              multiline
+              scrollEnabled
+            />
 
+            {/* FECHA */}
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Fecha (YYYY-MM-DD)"
+              placeholderTextColor="#777"
+              value={fecha}
+              onChangeText={setFecha}
+              multiline={false}
+            />
+
+            {/* MÉTODO DE PAGO */}
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Método de pago (Efectivo / Tarjeta / Transferencia)"
+              placeholderTextColor="#777"
+              value={metodoPago}
+              onChangeText={setMetodoPago}
+              multiline={false}
+            />
+          </ScrollView>
+
+          {/* BOTONES */}
           <View style={styles.modalButtonContainer}>
             <TouchableOpacity
               style={[styles.modalButton, { backgroundColor: "#777" }]}
@@ -71,14 +104,28 @@ export default function ModalEditarTransacciones({
             <TouchableOpacity
               style={[styles.modalButton, { backgroundColor: "#4CAF50" }]}
               onPress={() => {
-                onSave({ monto, descripcion, categoria, fecha });
+                if (!tipo || !monto || !categoria || !descripcion || !fecha || !metodoPago) {
+                      if (Platform.OS === "web") {
+                        window.alert("Por favor completa todos los campos.");
+                      } else {
+                            Alert.alert("Error", "Por favor completa todos los campos.");
+                      }
+                return; 
+                }
+                onSave({
+                  tipo,
+                  monto,
+                  categoria,
+                  descripcion,
+                  fecha,
+                  metodoPago,
+                });
                 onClose();
               }}
             >
               <Text style={styles.modalButtonText}>Guardar</Text>
             </TouchableOpacity>
           </View>
-
         </View>
       </View>
     </Modal>
@@ -93,33 +140,40 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    width: "85%",
-    backgroundColor: "white",
+    width: "88%",
+    maxHeight: "90%",
+    backgroundColor: "#fff",
     borderRadius: 15,
     padding: 25,
-    alignItems: "center",
     elevation: 10,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 15,
+    marginBottom: 20,
     color: "#333",
+    textAlign: "center",
   },
   modalInput: {
     width: "100%",
+    backgroundColor: "#F4F4F4",
+    color: "#000",
     height: 45,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: "#DDD",
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 12,
-    fontSize: 16,
+    textAlignVertical: "center",
+  },
+  largeInput: {
+    height: 80,
+    textAlignVertical: "top",
+    paddingTop: 10,
   },
   modalButtonContainer: {
     flexDirection: "row",
-    width: "100%",
-    marginTop: 10,
+    marginTop: 15,
     justifyContent: "space-between",
   },
   modalButton: {
@@ -130,7 +184,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalButtonText: {
-    color: "white",
+    color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
   },
