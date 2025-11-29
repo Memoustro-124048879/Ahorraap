@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   },
   modalBox: {
     width: "88%",
-    backgroundColor: "#d9a3c96b", // rosita como la imagen
+    backgroundColor: "#d9a3c96b", 
     borderRadius: 14,
     padding: 20
   },
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end"
   },
   btnAceptar: {
-    backgroundColor: "#c5eddc", // verde muy clarito como la imagen
+    backgroundColor: "#c5eddc", 
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 12,
