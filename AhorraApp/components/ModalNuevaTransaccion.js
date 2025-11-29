@@ -1,103 +1,131 @@
 import React, { useState } from "react";
-import { 
-  Modal, 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  TextInput, 
-  StyleSheet 
-} from "react-native";
+import {Modal,View,Text,TextInput,TouchableOpacity,StyleSheet,Platform,ScrollView,Alert} from "react-native";
 
-export default function ModalNuevaTransaccion({ visible, onClose, onSave }) {
-
-  const [titular, setTitular] = useState("");
-  const [banco, setBanco] = useState("");
-  const [tarjeta, setTarjeta] = useState("");
+export default function ModalNuevaTransaccion({
+  visible,
+  onClose,
+  onSave,
+}) {
+  const [tipo, setTipo] = useState("");
   const [monto, setMonto] = useState("");
-  const [motivo, setMotivo] = useState("");
-
-  const handleGuardar = () => {
-    if (!titular || !banco || !tarjeta || !monto || !motivo) {
-      alert("Todos los campos son obligatorios.");
-      return;
-    }
-
-    const nuevaTransaccion = {
-      id: Date.now().toString(),
-      titular,
-      banco,
-      tarjeta,
-      monto: parseFloat(monto),
-      motivo,
-      fecha: new Date().toISOString()
-    };
-
-    onSave(nuevaTransaccion);
-
-    // limpiar
-    setTitular("");
-    setBanco("");
-    setTarjeta("");
-    setMonto("");
-    setMotivo("");
-  };
+  const [categoria, setCategoria] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [fecha, setFecha] = useState("");
+  const [metodoPago, setMetodoPago] = useState("");
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.overlay}>
-        <View style={styles.modalBox}>
+    <Modal
+      visible={visible}
+      animationType="fade"
+      transparent={true}
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Nueva Transacción</Text>
 
-          <Text style={styles.titulo}>Datos</Text>
+          <ScrollView
+            style={{ width: "100%" }}
+            contentContainerStyle={{ paddingBottom: 10 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* TIPO */}
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Tipo (Ingreso / Gasto)"
+              placeholderTextColor="#777"
+              value={tipo}
+              onChangeText={setTipo}
+              multiline={false}
+            />
 
-          {/* INPUTS */}
-          <TextInput 
-            placeholder="Titular de la tarjeta"
-            style={styles.input}
-            value={titular}
-            onChangeText={setTitular}
-          />
+            {/* MONTO */}
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Monto"
+              placeholderTextColor="#777"
+              keyboardType="numeric"
+              value={monto}
+              onChangeText={setMonto}
+              multiline={false}
+            />
 
-          <TextInput 
-            placeholder="Banco (receptor)"
-            style={styles.input}
-            value={banco}
-            onChangeText={setBanco}
-          />
+            {/* CATEGORÍA */}
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Categoría (Comida, transporte...)"
+              placeholderTextColor="#777"
+              value={categoria}
+              onChangeText={setCategoria}
+              multiline={false}
+            />
 
-          <TextInput 
-            placeholder="Número de la tarjeta"
-            keyboardType="numeric"
-            style={styles.input}
-            value={tarjeta}
-            onChangeText={setTarjeta}
-          />
+            {/* DESCRIPCIÓN */}
+            <TextInput
+              style={[styles.modalInput, styles.largeInput]}
+              placeholder="Descripción"
+              placeholderTextColor="#777"
+              value={descripcion}
+              onChangeText={setDescripcion}
+              multiline
+              scrollEnabled
+            />
 
-          <TextInput 
-            placeholder="Monto"
-            keyboardType="numeric"
-            style={styles.input}
-            value={monto}
-            onChangeText={setMonto}
-          />
+            {/* FECHA */}
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Fecha (YYYY-MM-DD)"
+              placeholderTextColor="#777"
+              value={fecha}
+              onChangeText={setFecha}
+              multiline={false}
+            />
 
-          <TextInput 
-            placeholder="Motivo"
-            style={styles.input}
-            value={motivo}
-            onChangeText={setMotivo}
-          />
+            {/* MÉTODO DE PAGO */}
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Método de pago (Efectivo / Tarjeta / Transferencia)"
+              placeholderTextColor="#777"
+              value={metodoPago}
+              onChangeText={setMetodoPago}
+              multiline={false}
+            />
+          </ScrollView>
 
           {/* BOTONES */}
-          <View style={styles.footer}>
-            <TouchableOpacity style={styles.btnAceptar} onPress={handleGuardar}>
-              <Text style={styles.btnAceptarTexto}>Aceptar transacción</Text>
+          <View style={styles.modalButtonContainer}>
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: "#777" }]}
+              onPress={onClose}
+            >
+              <Text style={styles.modalButtonText}>Cancelar</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={onClose}>
-              <Text style={styles.btnCancelar}>Cancelar</Text>
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: "#4CAF50" }]}
+              onPress={() => {
+                if (!tipo || !monto || !categoria || !descripcion || !fecha || !metodoPago) {
+                      if (Platform.OS === "web") {
+                        window.alert("Por favor completa todos los campos.");
+                      } else {
+                            Alert.alert("Error", "Por favor completa todos los campos.");
+                      }
+                return; 
+                }
+                onSave({
+                  tipo,
+                  monto,
+                  categoria,
+                  descripcion,
+                  fecha,
+                  metodoPago,
+                });
+                onClose();
+              }}
+            >
+              <Text style={styles.modalButtonText}>Guardar</Text>
             </TouchableOpacity>
           </View>
-
         </View>
       </View>
     </Modal>
@@ -105,49 +133,59 @@ export default function ModalNuevaTransaccion({ visible, onClose, onSave }) {
 }
 
 const styles = StyleSheet.create({
-  overlay: {
+  modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
-  modalBox: {
+  modalContent: {
     width: "88%",
-    backgroundColor: "#d9a3c96b", 
-    borderRadius: 14,
-    padding: 20
+    maxHeight: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    padding: 25,
+    elevation: 10,
   },
-  titulo: {
-    fontSize: 16,
-    fontWeight: "700",
-    marginBottom: 10,
-    color: "#090808ff"
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 20,
+    color: "#333",
+    textAlign: "center",
   },
-  input: {
-    backgroundColor: "#ffffff",
+  modalInput: {
+    width: "100%",
+    backgroundColor: "#F4F4F4",
+    color: "#000",
+    height: 45,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#DDD",
+    textAlignVertical: "center",
+  },
+  largeInput: {
+    height: 80,
+    textAlignVertical: "top",
+    paddingTop: 10,
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    marginTop: 15,
+    justifyContent: "space-between",
+  },
+  modalButton: {
+    flex: 1,
     padding: 12,
-    borderRadius: 10,
-    marginBottom: 12
+    borderRadius: 8,
+    marginHorizontal: 5,
+    alignItems: "center",
   },
-  footer: {
-    marginTop: 10,
-    alignItems: "flex-end"
+  modalButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
-  btnAceptar: {
-    backgroundColor: "#c5eddc", 
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
-    marginBottom: 8
-  },
-  btnAceptarTexto: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#1a3d2c"
-  },
-  btnCancelar: {
-    color: "#6b0000",
-    fontSize: 14,
-    marginTop: 4
-  }
 });
