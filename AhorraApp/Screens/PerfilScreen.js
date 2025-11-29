@@ -5,6 +5,14 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 
 import ModalDatos from '../components/ModalDatos';
+import ModalMisTarjetas from '../components/ModalMisTarjetas';
+import ModalExtractos from '../components/ModalExtractos';
+import ModalCambiarContrasena from '../components/ModalCambiarContraseña';
+import ModalNotificaciones from '../components/ModalNotificaciones';
+import ModalFaceID from '../components/ModalFaceID';
+
+
+
 
 
 const avatarTony = require('../assets/tony.png'); 
@@ -33,6 +41,11 @@ const OpcionMenu = ({ icono, texto, accion, esRojo = false }) => (
 export default function PerfilScreen({ navigation }) {
   
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalTarjetas, setModalTarjetas] = useState(false);
+  const [modalExtractos, setModalExtractos] = useState(false);
+  const [modalPass, setModalPass] = useState(false);
+  const [modalNotif, setModalNotif] = useState(false);
+  const [modalFace, setModalFace] = useState(false);
 
   const handleLogOut = () => {
     Alert.alert(
@@ -88,12 +101,12 @@ export default function PerfilScreen({ navigation }) {
           <OpcionMenu 
             icono="card-outline" 
             texto="Mis Tarjetas" 
-            accion={() => accionSimulada("Tarjetas")} 
+            accion={() => setModalTarjetas(true)} 
           />
           <OpcionMenu 
             icono="document-text-outline" 
             texto="Extractos Mensuales" 
-            accion={() => accionSimulada("Extractos")} 
+            accion={() => setModalExtractos(true)} 
           />
         </View>
 
@@ -103,17 +116,17 @@ export default function PerfilScreen({ navigation }) {
           <OpcionMenu 
             icono="lock-closed-outline" 
             texto="Cambiar Contraseña" 
-            accion={() => accionSimulada("Pass")} 
+            accion={() => setModalPass(true)} 
           />
           <OpcionMenu 
             icono="notifications-outline" 
             texto="Notificaciones" 
-            accion={() => accionSimulada("Notif")} 
+            accion={() => setModalNotif(true)} 
           />
           <OpcionMenu 
             icono="shield-checkmark-outline" 
             texto="Face ID / Touch ID" 
-            accion={() => accionSimulada("Biometria")} 
+            accion={() => setModalFace(true)} 
           />
         </View>
 
@@ -140,6 +153,29 @@ export default function PerfilScreen({ navigation }) {
             accionSimulada("Editar desde Componente");
         }}
       />
+      <ModalMisTarjetas
+        visible={modalTarjetas}
+        onClose={() => setModalTarjetas(false)}
+      />
+
+      <ModalExtractos
+        visible={modalExtractos}
+        onClose={() => setModalExtractos(false)}
+      />
+      <ModalCambiarContrasena 
+        visible={modalPass}
+        onClose={() => setModalPass(false)}
+      />
+      <ModalNotificaciones 
+        visible={modalNotif}
+        onClose={() => setModalNotif(false)}
+      />
+      <ModalFaceID 
+        visible={modalFace}
+        onClose={() => setModalFace(false)}
+      />
+
+
 
     </View>
   );
