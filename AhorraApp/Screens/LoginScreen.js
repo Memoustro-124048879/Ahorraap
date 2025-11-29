@@ -24,7 +24,7 @@ export default function LoginScreen({ navigation }) {
   
   const verdeOficial = '#2DA458'; 
 
-  // --- VALIDACIÓN Y NAVEGACIÓN DIRECTA ---
+ 
   const handleLogin = () => {
     
     if (email.trim() === '' && password.trim() === '') {
@@ -37,7 +37,7 @@ export default function LoginScreen({ navigation }) {
       Alert.alert('Correo inválido', 'Ingresa un correo válido (ej: tony@gmail.com).');
       return; 
     }
-    // 3. Validar contraseña
+    
     if (password.trim() === '') {
       Alert.alert('Contraseña requerida', 'Por favor escribe tu contraseña.');
       return; 
@@ -111,7 +111,7 @@ export default function LoginScreen({ navigation }) {
 
       </View>
 
-      {/* MODAL RECUPERACIÓN */}
+     
       <Modal
         animationType="fade"
         transparent={true}

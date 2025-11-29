@@ -4,14 +4,12 @@ import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
+
 import HomeScreen from './HomeScreen'; 
-
-
-const PlaceholderScreen = ({ route }) => (
-  <View style={{flex:1, backgroundColor:'#fff', justifyContent:'center', alignItems:'center'}}>
-    <Text style={{color: '#666', fontSize: 16}}>Sección {route.name} en construcción 🚧</Text>
-  </View>
-);
+import PresupuestoScreen from './PresupuestoScreen'; 
+import FinanzasScreen from './FinanzasScreen'; 
+import CalendarioScreen from './CalendarioScreen';
+import PerfilScreen from './PerfilScreen'; 
 
 const Tab = createBottomTabNavigator();
 const verdeOficial = '#2DA458';
@@ -38,7 +36,7 @@ export default function MainTabs() {
       
       <Tab.Screen 
         name="Perfil" 
-        component={PlaceholderScreen} 
+        component={PerfilScreen} 
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons name="person-outline" size={28} color={focused ? verdeOficial : "gray"} />
@@ -49,7 +47,7 @@ export default function MainTabs() {
       
       <Tab.Screen 
         name="Presupuestos" 
-        component={PlaceholderScreen} 
+        component={PresupuestoScreen} 
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons name="document-text-outline" size={28} color={focused ? verdeOficial : "gray"} />
@@ -57,7 +55,7 @@ export default function MainTabs() {
         }}
       />
 
-     
+      
       <Tab.Screen 
         name="Home" 
         component={HomeScreen} 
@@ -70,10 +68,10 @@ export default function MainTabs() {
         }}
       />
 
-      
+    
       <Tab.Screen 
-        name="Graficas" 
-        component={PlaceholderScreen} 
+        name="Finanzas" 
+        component={FinanzasScreen} 
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons name="stats-chart-outline" size={28} color={focused ? verdeOficial : "gray"} />
@@ -81,10 +79,10 @@ export default function MainTabs() {
         }}
       />
 
-     
+      
       <Tab.Screen 
         name="Calendario" 
-        component={PlaceholderScreen} 
+        component={CalendarioScreen} 
         options={{
           tabBarIcon: ({ focused }) => (
             <Ionicons name="calendar-outline" size={28} color={focused ? verdeOficial : "gray"} />

@@ -5,13 +5,13 @@ import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 
 const color = {
   fondo: "#f1f2f3",
-  verde: "#2DA458",
+  verde: "#2DA458", 
   tarjeta: "#ffffff",
   texto: "#101010",
   textoSuave: "#666",
 };
 
-// --- ENCABEZADO ---
+
 function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
   return (
     <View style={estilos.encabezado}>
@@ -39,36 +39,38 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
   );
 }
 
-
 export default function HomeScreen({ navigation }) {
   
   const irA = (nombrePantalla) => navigation.navigate(nombrePantalla);
 
   return (
     <View style={estilos.pantalla}>
-      <Encabezado titulo="Transacciones" />
+      <Encabezado titulo="Mis Transacciones" />
 
-      <ScrollView contentContainerStyle={estilos.scrollContent}>
+      <ScrollView contentContainerStyle={estilos.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={estilos.gridOpciones}>
             
+           
             <TouchableOpacity style={estilos.botonOpcion} onPress={() => irA("Historial")}>
               <Ionicons name="reload-outline" size={36} color="white" />
-              <Text style={estilos.textoOpcion}>Historial de{"\n"}registros</Text>
+              <Text style={estilos.textoOpcion}>Historial de{"\n"}transacciones</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={estilos.botonOpcion} onPress={() => irA("NuevaTransferencia")}>
                <FontAwesome5 name="exchange-alt" size={30} color="white" />
-              <Text style={estilos.textoOpcion}>Nueva{"\n"}transferencia</Text>
+              <Text style={estilos.textoOpcion}>Nueva{"\n"}transacción</Text>
             </TouchableOpacity>
 
+            
             <TouchableOpacity style={estilos.botonOpcion} onPress={() => irA("EditarTransferencias")}>
               <MaterialIcons name="edit" size={36} color="white" />
-              <Text style={estilos.textoOpcion}>Editar{"\n"}transferencias</Text>
+              <Text style={estilos.textoOpcion}>Editar{"\n"}transacciones</Text>
             </TouchableOpacity>
 
+            
             <TouchableOpacity style={estilos.botonOpcion} onPress={() => irA("ListaFiltrada")}>
               <Ionicons name="list-outline" size={36} color="white" />
-              <Text style={estilos.textoOpcion}>Listado{"\n"}filtrado</Text>
+              <Text style={estilos.textoOpcion}>Listado de{"\n"}transacciones</Text>
             </TouchableOpacity>
 
         </View>
@@ -88,7 +90,10 @@ const estilos = StyleSheet.create({
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     elevation: 5,
-    zIndex: 1
+    zIndex: 1,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: {width: 0, height: 2}
   },
   titulo: { color: "white", fontSize: 18, marginBottom: 15, fontWeight: "bold", textAlign: 'center' },
   saldoTarjeta: {
@@ -120,6 +125,9 @@ const estilos = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
     elevation: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: {width: 0, height: 2}
   },
   textoOpcion: {
     color: "white",
