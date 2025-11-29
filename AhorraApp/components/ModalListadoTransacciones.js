@@ -1,46 +1,41 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Modal,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList } from "react-native";
 
 const ModalListadoTransacciones = ({ visible, onClose }) => {
-  const [feedbackMessage, setFeedbackMessage] = useState(
-    "Aquí se mostraría la lista de transferencias filtradas."
-  );
+  const historialFalso = [
+    { id: "1", descripcion: "Pago Oxxo", monto: -150, fecha: "2025-11-01", categoria: "Comida" },
+    { id: "2", descripcion: "Depósito Nómina", monto: 3500, fecha: "2025-11-05", categoria: "Ingreso" },
+    { id: "3", descripcion: "Spotify", monto: -129, fecha: "2025-11-03", categoria: "Entretenimiento" },
+    { id: "4", descripcion: "Uber", monto: -220, fecha: "2025-11-05", categoria: "Transporte" },
+  ];
+
+  const [listaFiltrada, setListaFiltrada] = useState(historialFalso);
 
   const handleFilter = (type) => {
-    const msg =
-      type === "fecha"
-        ? "Filtro por fecha aplicado."
-        : "Filtro por categoría aplicado.";
-
-    setFeedbackMessage(msg);
+    let filtradas = historialFalso;
+    if (type === "fecha") {
+      filtradas = historialFalso.filter(item => item.fecha === "2025-11-05"); // ejemplo
+    } else if (type === "categoria") {
+      filtradas = historialFalso.filter(item => item.categoria.toLowerCase() === "comida"); // ejemplo
+    }
+    setListaFiltrada(filtradas);
   };
 
+  useEffect(() => {
+    if (visible) {
+      setListaFiltrada(historialFalso); // resetear lista al abrir
+    }
+  }, [visible]);
+
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-    >
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.modalContainer}>
-
         <View style={styles.modalContent}>
-
-          {/* TITULO */}
           <Text style={styles.modalTitle}>Listado de las transferencias</Text>
-
-          {/* SUBTÍTULO */}
           <Text style={styles.modalSubtitle}>
             Puedes filtrar tus movimientos por fecha o categoría.
           </Text>
 
-          {/* BOTONES DE FILTRO */}
           <View style={styles.filterRow}>
             <TouchableOpacity
               style={[styles.filterButton, { backgroundColor: "#f5e0e0" }]}
@@ -57,12 +52,22 @@ const ModalListadoTransacciones = ({ visible, onClose }) => {
             </TouchableOpacity>
           </View>
 
-          {/* MENSAJE CENTRAL */}
-          <View style={styles.centerBox}>
-            <Text style={styles.centerText}>{feedbackMessage}</Text>
-          </View>
+          <FlatList
+            data={listaFiltrada}
+            keyExtractor={(item) => item.id}
+            style={{ width: "100%", maxHeight: 250 }}
+            contentContainerStyle={{ paddingBottom: 10 }}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <View style={styles.item}>
+                <Text style={styles.itemTexto}>{item.descripcion}</Text>
+                <Text style={[styles.monto, { color: item.monto > 0 ? "green" : "red" }]}>
+                  {item.monto} MXN
+                </Text>
+              </View>
+            )}
+          />
 
-          {/* BOTÓN CERRAR */}
           <TouchableOpacity
             style={[styles.modalButton, { backgroundColor: "#6c757d", marginTop: 10 }]}
             onPress={onClose}
@@ -107,8 +112,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: "#555",
   },
-
-  // FILTROS
   filterRow: {
     flexDirection: "row",
     justifyContent: "center",
@@ -126,19 +129,17 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#333",
   },
-
-  // MENSAJE CENTRAL
-  centerBox: {
-    paddingVertical: 25,
-    alignItems: "center",
-    justifyContent: "center",
+  item: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    marginBottom: 5,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 10,
   },
-  centerText: {
-    fontSize: 15,
-    textAlign: "center",
-    color: "#666",
-  },
-
+  itemTexto: { fontSize: 16 },
+  monto: { fontSize: 16, fontWeight: "bold" },
   modalButton: {
     width: "100%",
     padding: 12,
@@ -154,4 +155,3 @@ const styles = StyleSheet.create({
 });
 
 export default ModalListadoTransacciones;
-
