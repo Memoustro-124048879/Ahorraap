@@ -1,20 +1,22 @@
-// Screens/PerfilScreen.js
-import React from 'react';
+
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, StatusBar, Alert } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
-// IMPORTA TU FOTO AQUÍ
-// Asegúrate de que la ruta sea correcta hacia tu carpeta de assets
+
+import ModalDatos from '../components/ModalDatos';
+
+
 const avatarTony = require('../assets/tony.png'); 
 
 const color = {
   fondo: "#f1f2f3",
   verde: "#2DA458",
-  tarjeta: "#ffffff",
   texto: "#101010",
   textoSuave: "#666",
   rojo: "#e74c3c", 
 };
+
 
 const OpcionMenu = ({ icono, texto, accion, esRojo = false }) => (
   <TouchableOpacity style={estilos.opcionFila} onPress={accion}>
@@ -29,6 +31,8 @@ const OpcionMenu = ({ icono, texto, accion, esRojo = false }) => (
 );
 
 export default function PerfilScreen({ navigation }) {
+  
+  const [modalVisible, setModalVisible] = useState(false);
 
   const handleLogOut = () => {
     Alert.alert(
@@ -51,18 +55,14 @@ export default function PerfilScreen({ navigation }) {
 
   return (
     <View style={estilos.pantalla}>
-      {/* Barra de estado oscura para fondo claro */}
       <StatusBar barStyle="dark-content" backgroundColor={color.fondo} />
 
       <ScrollView contentContainerStyle={estilos.scrollContent} showsVerticalScrollIndicator={false}>
         
-        {/* TARJETA DE USUARIO (Ahora es lo primero) */}
+       
         <View style={estilos.cardUsuario}>
           <View style={estilos.avatarContainer}>
-            <Image 
-              source={avatarTony} // <-- USAMOS TU FOTO AQUÍ
-              style={estilos.avatar} 
-            />
+            <Image source={avatarTony} style={estilos.avatar} />
             <View style={estilos.badgeEdit}>
               <Ionicons name="camera" size={14} color="white" />
             </View>
@@ -77,21 +77,47 @@ export default function PerfilScreen({ navigation }) {
           </View>
         </View>
 
-        {/* SECCIONES DE MENÚ */}
+       
         <Text style={estilos.seccionTitulo}>Cuenta</Text>
         <View style={estilos.bloqueOpciones}>
-          <OpcionMenu icono="person-outline" texto="Datos Personales" accion={() => accionSimulada("Datos")} />
-          <OpcionMenu icono="card-outline" texto="Mis Tarjetas" accion={() => accionSimulada("Tarjetas")} />
-          <OpcionMenu icono="document-text-outline" texto="Extractos Mensuales" accion={() => accionSimulada("Extractos")} />
+          <OpcionMenu 
+            icono="person-outline" 
+            texto="Datos Personales" 
+            accion={() => setModalVisible(true)} 
+          />
+          <OpcionMenu 
+            icono="card-outline" 
+            texto="Mis Tarjetas" 
+            accion={() => accionSimulada("Tarjetas")} 
+          />
+          <OpcionMenu 
+            icono="document-text-outline" 
+            texto="Extractos Mensuales" 
+            accion={() => accionSimulada("Extractos")} 
+          />
         </View>
 
+        
         <Text style={estilos.seccionTitulo}>Seguridad & Ajustes</Text>
         <View style={estilos.bloqueOpciones}>
-          <OpcionMenu icono="lock-closed-outline" texto="Cambiar Contraseña" accion={() => accionSimulada("Pass")} />
-          <OpcionMenu icono="notifications-outline" texto="Notificaciones" accion={() => accionSimulada("Notif")} />
-          <OpcionMenu icono="shield-checkmark-outline" texto="Face ID / Touch ID" accion={() => accionSimulada("Biometria")} />
+          <OpcionMenu 
+            icono="lock-closed-outline" 
+            texto="Cambiar Contraseña" 
+            accion={() => accionSimulada("Pass")} 
+          />
+          <OpcionMenu 
+            icono="notifications-outline" 
+            texto="Notificaciones" 
+            accion={() => accionSimulada("Notif")} 
+          />
+          <OpcionMenu 
+            icono="shield-checkmark-outline" 
+            texto="Face ID / Touch ID" 
+            accion={() => accionSimulada("Biometria")} 
+          />
         </View>
 
+        
         <View style={[estilos.bloqueOpciones, { marginTop: 20, marginBottom: 40 }]}>
           <OpcionMenu 
             icono="log-out-outline" 
@@ -104,29 +130,43 @@ export default function PerfilScreen({ navigation }) {
         <Text style={estilos.versionApp}>AhorraApp v1.0.2</Text>
 
       </ScrollView>
+
+      
+      <ModalDatos 
+        visible={modalVisible} 
+        onClose={() => setModalVisible(false)}
+        onEdit={() => {
+            setModalVisible(false);
+            accionSimulada("Editar desde Componente");
+        }}
+      />
+
     </View>
   );
 }
 
 const estilos = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: color.fondo },
+  pantalla: { 
+    flex: 1, 
+    backgroundColor: color.fondo 
+  },
   
   scrollContent: {
-    paddingTop: 60, // Espacio superior para que no se pegue al borde
+    paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 100,
   },
 
-  // Tarjeta Usuario (Sin margen negativo)
+  
   cardUsuario: {
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 25, // Un poco más de padding
+    padding: 25,
     alignItems: 'center',
-    elevation: 2, // Sombra más sutil
+    elevation: 2,
     shadowColor: "#000",
     shadowOpacity: 0.08,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     marginBottom: 30,
   },
   avatarContainer: {
@@ -134,7 +174,7 @@ const estilos = StyleSheet.create({
     marginBottom: 15,
   },
   avatar: {
-    width: 100, // Un poco más grande
+    width: 100,
     height: 100,
     borderRadius: 50,
   },
@@ -177,7 +217,7 @@ const estilos = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // Estilos de Menú (Iguales)
+  
   seccionTitulo: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -200,7 +240,10 @@ const estilos = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f5f5f5',
   },
-  ladoIzquierdo: { flexDirection: 'row', alignItems: 'center' },
+  ladoIzquierdo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   iconoContainer: {
     width: 38,
     height: 38,
@@ -209,12 +252,16 @@ const estilos = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  textoOpcion: { fontSize: 15, color: color.texto, fontWeight: '500' },
+  textoOpcion: {
+    fontSize: 15,
+    color: color.texto,
+    fontWeight: '500',
+  },
   versionApp: {
     textAlign: 'center',
     color: '#ccc',
     fontSize: 12,
     marginTop: -10,
-    marginBottom: 10
-  }
+    marginBottom: 10,
+  },
 });
