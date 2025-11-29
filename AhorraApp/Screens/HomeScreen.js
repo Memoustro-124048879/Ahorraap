@@ -1,7 +1,13 @@
 // Screens/HomeScreen.js
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
+
+import ModalHistorial from "../components/ModalHistorial";
+import ModalNuevaTransaccion from "../components/ModalNuevaTransaccion";
+import ModalEditarTransacciones from "../components/ModalEditarTransacciones";
+import ModalListadoTransacciones from "../components/ModalListadoTransacciones";
+
 
 const color = {
   fondo: "#f1f2f3",
@@ -41,7 +47,14 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
 
 export default function HomeScreen({ navigation }) {
   
+  const [modalHistorial, setModalHistorial] = useState(false);
+  const [modalNueva, setModalNueva] = useState(false);
+  const [modalEditar, setModalEditar] = useState(false);
+  const [modalListado, setModalListado] = useState(false);
+  
   const irA = (nombrePantalla) => navigation.navigate(nombrePantalla);
+  
+
 
   return (
     <View style={estilos.pantalla}>
@@ -51,29 +64,34 @@ export default function HomeScreen({ navigation }) {
         <View style={estilos.gridOpciones}>
             
            
-            <TouchableOpacity style={estilos.botonOpcion} onPress={() => irA("Historial")}>
+            <TouchableOpacity style={estilos.botonOpcion} onPress={() => setModalHistorial(true)}>
               <Ionicons name="reload-outline" size={36} color="white" />
               <Text style={estilos.textoOpcion}>Historial de{"\n"}transacciones</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={estilos.botonOpcion} onPress={() => irA("NuevaTransferencia")}>
+            <TouchableOpacity style={estilos.botonOpcion} onPress={() => setModalNueva(true)}>
                <FontAwesome5 name="exchange-alt" size={30} color="white" />
               <Text style={estilos.textoOpcion}>Nueva{"\n"}transacción</Text>
             </TouchableOpacity>
 
             
-            <TouchableOpacity style={estilos.botonOpcion} onPress={() => irA("EditarTransferencias")}>
+            <TouchableOpacity style={estilos.botonOpcion} onPress={() => setModalEditar(true)}>
               <MaterialIcons name="edit" size={36} color="white" />
               <Text style={estilos.textoOpcion}>Editar{"\n"}transacciones</Text>
             </TouchableOpacity>
 
             
-            <TouchableOpacity style={estilos.botonOpcion} onPress={() => irA("ListaFiltrada")}>
+            <TouchableOpacity style={estilos.botonOpcion} onPress={() => setModalListado(true)}>
               <Ionicons name="list-outline" size={36} color="white" />
               <Text style={estilos.textoOpcion}>Listado de{"\n"}transacciones</Text>
             </TouchableOpacity>
 
         </View>
+        <ModalHistorial visible={modalHistorial} onClose={() => setModalHistorial(false)} />
+        <ModalNuevaTransaccion visible={modalNueva} onClose={() => setModalNueva(false)} />
+        <ModalEditarTransacciones visible={modalEditar} onClose={() => setModalEditar(false)} />
+        <ModalListadoTransacciones visible={modalListado} onClose={() => setModalListado(false)} />
+
       </ScrollView>
     </View>
   );
