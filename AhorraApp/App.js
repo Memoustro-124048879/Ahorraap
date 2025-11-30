@@ -6,7 +6,9 @@ import SplashScreen from './screens/SplashScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegistroScreen from './screens/RegistroScreen';
 import MainTabs from './screens/MainTabs';
+import PerfilScreen from './screens/PerfilScreen';
 
+<Stack.Screen name="Perfil" component={PerfilScreen} />
 
 const Stack = createStackNavigator();
 
@@ -14,7 +16,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        
+      
         {/* 1. ENTRADA */}
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
