@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, Switch, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Modal, Switch, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const color = {
@@ -10,6 +10,14 @@ const color = {
 
 export default function ModalFaceID({ visible, onClose }) {
   const [faceID, setFaceID] = useState(true);
+
+  // Función para guardar y cerrar
+  const handleGuardar = () => {
+    // Aquí iría la lógica real para activar biometría en el dispositivo
+    const estado = faceID ? "activada" : "desactivada";
+    Alert.alert("Seguridad", `Autenticación biométrica ${estado}.`);
+    onClose(); // <--- ESTO CIERRA EL MODAL
+  };
 
   return (
     <Modal animationType="fade" transparent visible={visible} onRequestClose={onClose}>
@@ -26,11 +34,18 @@ export default function ModalFaceID({ visible, onClose }) {
           <View style={estilos.modalBody}>
             <View style={estilos.row}>
               <Text style={estilos.label}>Activar autenticación biométrica</Text>
-              <Switch value={faceID} onValueChange={setFaceID} />
+              
+              {/* Switch con colores de marca */}
+              <Switch 
+                trackColor={{ false: "#767577", true: "#a5d6b6" }}
+                thumbColor={faceID ? color.verde : "#f4f3f4"}
+                value={faceID} 
+                onValueChange={setFaceID} 
+              />
             </View>
           </View>
 
-          <TouchableOpacity style={estilos.botonModal}>
+          <TouchableOpacity style={estilos.botonModal} onPress={handleGuardar}>
             <Text style={estilos.textoBotonModal}>Guardar</Text>
           </TouchableOpacity>
 
@@ -51,7 +66,11 @@ const estilos = StyleSheet.create({
     width: "85%",
     backgroundColor: "white",
     borderRadius: 20,
-    padding: 20
+    padding: 20,
+    elevation: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 4 },
   },
   modalHeader: {
     flexDirection: "row",
@@ -69,10 +88,13 @@ const estilos = StyleSheet.create({
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center", // Centrado verticalmente con el switch
   },
   label: {
     fontSize: 16,
-    color: color.texto
+    color: color.texto,
+    flex: 1, // Para que el texto ocupe espacio y no se amontone con el switch
+    marginRight: 10
   },
   botonModal: {
     backgroundColor: color.verde,

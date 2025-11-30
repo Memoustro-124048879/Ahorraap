@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, Switch } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, Switch, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const color = {
@@ -11,6 +11,12 @@ const color = {
 export default function ModalNotificaciones({ visible, onClose }) {
   const [push, setPush] = useState(true);
   const [email, setEmail] = useState(false);
+
+  const handleGuardar = () => {
+    // Aquí iría la lógica para guardar en la base de datos
+    Alert.alert("Éxito", "Configuración de notificaciones guardada.");
+    onClose(); // <--- ESTO CIERRA EL MODAL
+  };
 
   return (
     <Modal animationType="fade" transparent visible={visible} onRequestClose={onClose}>
@@ -25,18 +31,32 @@ export default function ModalNotificaciones({ visible, onClose }) {
           </View>
 
           <View style={estilos.modalBody}>
+            
+            {/* Opción 1: Push */}
             <View style={estilos.row}>
               <Text style={estilos.label}>Notificaciones Push</Text>
-              <Switch value={push} onValueChange={setPush} />
+              <Switch 
+                trackColor={{ false: "#767577", true: "#a5d6b6" }}
+                thumbColor={push ? color.verde : "#f4f3f4"}
+                value={push} 
+                onValueChange={setPush} 
+              />
             </View>
 
+            {/* Opción 2: Email */}
             <View style={estilos.row}>
               <Text style={estilos.label}>Notificaciones por Email</Text>
-              <Switch value={email} onValueChange={setEmail} />
+              <Switch 
+                trackColor={{ false: "#767577", true: "#a5d6b6" }}
+                thumbColor={email ? color.verde : "#f4f3f4"}
+                value={email} 
+                onValueChange={setEmail} 
+              />
             </View>
+
           </View>
 
-          <TouchableOpacity style={estilos.botonModal}>
+          <TouchableOpacity style={estilos.botonModal} onPress={handleGuardar}>
             <Text style={estilos.textoBotonModal}>Guardar</Text>
           </TouchableOpacity>
 
@@ -58,10 +78,14 @@ const estilos = StyleSheet.create({
     backgroundColor: "white",
     padding: 20,
     borderRadius: 20,
+    elevation: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 4 },
   },
   modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 20
   },
   modalTitulo: {
@@ -73,13 +97,15 @@ const estilos = StyleSheet.create({
     marginBottom: 25,
   },
   row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 20
   },
   label: {
     fontSize: 16,
-    color: color.texto
+    color: color.texto,
+    fontWeight: '500'
   },
   botonModal: {
     backgroundColor: color.verde,

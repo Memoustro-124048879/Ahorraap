@@ -1,6 +1,6 @@
-
-import React from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+// components/ModalDatos.js
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const color = {
@@ -9,20 +9,57 @@ const color = {
   textoSuave: "#666",
 };
 
-
-const DatoFila = ({ label, valor, icono }) => (
+// Componente de Fila (Detecta si es input o texto)
+const DatoFila = ({ label, valor, icono, editable, onChangeText, isLocked }) => (
   <View style={estilos.datoFila}>
     <View style={estilos.datoIcono}>
       <Ionicons name={icono} size={20} color={color.verde} />
     </View>
-    <View>
+    <View style={{ flex: 1 }}>
       <Text style={estilos.datoLabel}>{label}</Text>
-      <Text style={estilos.datoValor}>{valor}</Text>
+      
+      {editable && !isLocked ? (
+        <TextInput 
+          style={estilos.inputEdit} 
+          value={valor} 
+          onChangeText={onChangeText}
+          autoFocus={true}
+        />
+      ) : (
+        <Text style={[estilos.datoValor, isLocked && {color: '#999'}]}>{valor}</Text>
+      )}
     </View>
+    
+    {/* Icono de lápiz pequeño si es editable */}
+    {editable && !isLocked && (
+      <Ionicons name="pencil" size={16} color={color.verde} />
+    )}
   </View>
 );
 
-export default function ModalDatos({ visible, onClose, onEdit }) {
+export default function ModalDatos({ visible, onClose, datosActuales, onGuardar }) {
+  
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempData, setTempData] = useState(datosActuales);
+
+  // Cada vez que se abre el modal, cargamos los datos actuales
+  useEffect(() => {
+    if (visible) {
+      setTempData(datosActuales);
+      setIsEditing(false); // Siempre empieza en modo lectura
+    }
+  }, [visible, datosActuales]);
+
+  const handleAccion = () => {
+    if (isEditing) {
+      // Si estaba editando, ahora GUARDAMOS
+      onGuardar(tempData);
+    } else {
+      // Si estaba leyendo, ahora EDITAMOS
+      setIsEditing(true);
+    }
+  };
+
   return (
     <Modal
       animationType="fade"
@@ -33,24 +70,58 @@ export default function ModalDatos({ visible, onClose, onEdit }) {
       <View style={estilos.modalOverlay}>
         <View style={estilos.modalContent}>
           
-          
+          {/* Header */}
           <View style={estilos.modalHeader}>
-            <Text style={estilos.modalTitulo}>Mis Datos</Text>
+            <Text style={estilos.modalTitulo}>
+              {isEditing ? "Editando Perfil" : "Mis Datos"}
+            </Text>
             <TouchableOpacity onPress={onClose}>
               <Ionicons name="close-circle" size={30} color="#ccc" />
             </TouchableOpacity>
           </View>
 
-       
+          {/* Cuerpo */}
           <View style={estilos.modalBody}>
-            <DatoFila label="Nombre Completo" valor="Tony Developer" icono="person" />
-            <DatoFila label="Correo Electrónico" valor="tony@ahorraapp.com" icono="mail" />
-            <DatoFila label="Teléfono" valor="+52 55 1234 5678" icono="call" />
-            <DatoFila label="ID de Usuario" valor="#8839201" icono="finger-print" />
+            <DatoFila 
+              label="Nombre Completo" 
+              valor={tempData.nombre} 
+              icono="person" 
+              editable={isEditing}
+              onChangeText={(text) => setTempData({...tempData, nombre: text})}
+            />
+            <DatoFila 
+              label="Correo Electrónico" 
+              valor={tempData.email} 
+              icono="mail" 
+              editable={isEditing}
+              onChangeText={(text) => setTempData({...tempData, email: text})}
+            />
+            <DatoFila 
+              label="Teléfono" 
+              valor={tempData.telefono} 
+              icono="call" 
+              editable={isEditing}
+              onChangeText={(text) => setTempData({...tempData, telefono: text})}
+            />
+            
+            {/* El ID no se debe editar nunca */}
+            <DatoFila 
+              label="ID de Usuario" 
+              valor={tempData.idUsuario} 
+              icono="finger-print" 
+              editable={isEditing}
+              isLocked={true} 
+            />
           </View>
 
-          <TouchableOpacity style={estilos.botonModal} onPress={onEdit}>
-            <Text style={estilos.textoBotonModal}>Editar Información</Text>
+          {/* Botón Dinámico */}
+          <TouchableOpacity 
+            style={[estilos.botonModal, isEditing && { backgroundColor: '#34495e' }]} 
+            onPress={handleAccion}
+          >
+            <Text style={estilos.textoBotonModal}>
+              {isEditing ? "Guardar Cambios" : "Editar Información"}
+            </Text>
           </TouchableOpacity>
 
         </View>
@@ -116,6 +187,15 @@ const estilos = StyleSheet.create({
     fontSize: 16,
     color: color.texto,
     fontWeight: '500',
+  },
+  // Estilo para cuando es Input
+  inputEdit: {
+    fontSize: 16,
+    color: color.texto,
+    fontWeight: '500',
+    borderBottomWidth: 1,
+    borderBottomColor: color.verde,
+    paddingVertical: 2,
   },
   botonModal: {
     backgroundColor: color.verde,
