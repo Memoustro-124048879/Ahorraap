@@ -25,9 +25,8 @@ export default function ModalConfiguracion({ visible, onClose, navigation }) {
   const opciones = [
     { id: 1, titulo: "Perfil", icono: "person-outline", action: () => {onClose(); navigation.navigate('Perfil');}},
     { id: 2, titulo: "Notificaciones", icono: "notifications-outline", action: () => setNotiVisible(true) },
-    { id: 3, titulo: "Tema Oscuro / Claro", icono: "moon-outline", action: () => setTemaVisible(true) },
-    { id: 4, titulo: "Seguridad", icono: "lock-closed-outline", action: () => setSeguridadVisible(true) },
-    { id: 5, titulo: "Idioma", icono: "language-outline", action: () => setIdiomaVisible(true) },
+    { id: 3, titulo: "Seguridad", icono: "lock-closed-outline", action: () => setSeguridadVisible(true) },
+    { id: 4, titulo: "Idioma", icono: "language-outline", action: () => setIdiomaVisible(true) },
   ];
 
   return (
