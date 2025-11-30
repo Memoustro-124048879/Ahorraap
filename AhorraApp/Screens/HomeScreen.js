@@ -1,14 +1,14 @@
 // Screens/HomeScreen.js
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView,Modal,Button } from "react-native";
 import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 
 import ModalHistorial from "../components/ModalHistorial";
 import ModalNuevaTransaccion from "../components/ModalNuevaTransaccion";
 import ModalEditarTransacciones from "../components/ModalEditarTransacciones";
 import ModalListadoTransacciones from "../components/ModalListadoTransacciones";
-
-
+import ModalNotificacionesGeneral from "../components/ModalNotificacionesGeneral";
+import ModalConfiguracion from "../components/ModalConfiguracion";
 const color = {
   fondo: "#f1f2f3",
   verde: "#2DA458", 
@@ -18,7 +18,7 @@ const color = {
 };
 
 
-function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
+function Encabezado({ titulo, abrirNotificaciones, abrirConfiguracion, saldo = 9638.35, moneda = "MXN" }) {
   return (
     <View style={estilos.encabezado}>
       <Text style={estilos.titulo}>{titulo}</Text>
@@ -33,10 +33,10 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
         </View>
 
         <View style={estilos.iconosAccion}>
-          <TouchableOpacity style={{ marginRight: 15 }}>
+          <TouchableOpacity style={{ marginRight: 15 }} onPress={abrirNotificaciones}>
             <Ionicons name="notifications-outline" size={24} color={color.verde} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={abrirConfiguracion}>
             <Ionicons name="settings-outline" size={24} color={color.verde} />
           </TouchableOpacity>
         </View>
@@ -51,14 +51,20 @@ export default function HomeScreen({ navigation }) {
   const [modalNueva, setModalNueva] = useState(false);
   const [modalEditar, setModalEditar] = useState(false);
   const [modalListado, setModalListado] = useState(false);
-  
-  const irA = (nombrePantalla) => navigation.navigate(nombrePantalla);
+
+  const [notiVisible, setNotiVisible] = useState(false);
+  const [configVisible, setConfigVisible] = useState(false);
+
+  const notificaciones = [
+    "Nuevo ingreso registrado",
+    "Presupuesto superado en Supermercado"
+  ];
   
 
 
   return (
     <View style={estilos.pantalla}>
-      <Encabezado titulo="Mis Transacciones" />
+      <Encabezado titulo="Mis Transacciones" abrirNotificaciones={() => setNotiVisible(true)} abrirConfiguracion={() => setConfigVisible(true)} />
 
       <ScrollView contentContainerStyle={estilos.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={estilos.gridOpciones}>
@@ -87,12 +93,24 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
 
         </View>
+        </ScrollView>
         <ModalHistorial visible={modalHistorial} onClose={() => setModalHistorial(false)} />
         <ModalNuevaTransaccion visible={modalNueva} onClose={() => setModalNueva(false)} />
         <ModalEditarTransacciones visible={modalEditar} onClose={() => setModalEditar(false)} />
         <ModalListadoTransacciones visible={modalListado} onClose={() => setModalListado(false)} />
+        <ModalNotificacionesGeneral
+                visible={notiVisible}
+                onClose={() => setNotiVisible(false)}
+                notificaciones={notificaciones}
+              />
+        
+              <ModalConfiguracion
+                visible={configVisible}
+                onClose={() => setConfigVisible(false)}
+              />
 
-      </ScrollView>
+      
+      
     </View>
   );
 }
