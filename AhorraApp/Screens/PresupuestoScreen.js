@@ -4,6 +4,8 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import ModalNuevoPresupuesto from '../components/ModalNuevoPresupuesto';
 import ModalEditarPresupuesto from '../components/ModalEditarPresupuesto';
 
+import ModalNotificacionesGeneral from '../components/ModalNotificacionesGeneral';
+import ModalConfiguracion from '../components/ModalConfiguracion';
 const color = {
   fondo: "#f1f2f3",
   verde: "#2DA458", 
@@ -13,7 +15,7 @@ const color = {
   rojo: "#e74c3c", 
 };
 
-function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
+function Encabezado({ titulo, abrirNotificaciones, abrirConfiguraciones, saldo = 9638.35, moneda = "MXN" }) {
   return (
     <View style={estilos.encabezado}>
       <Text style={estilos.titulo}>{titulo}</Text>
@@ -28,10 +30,10 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
         </View>
 
         <View style={estilos.iconosAccion}>
-          <TouchableOpacity style={{ marginRight: 15 }}>
+          <TouchableOpacity style={{ marginRight: 15 }} onPress={abrirNotificaciones}>
             <Ionicons name="notifications-outline" size={24} color={color.verde} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={abrirConfiguraciones}>
             <Ionicons name="settings-outline" size={24} color={color.verde} />
           </TouchableOpacity>
         </View>
@@ -41,6 +43,13 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
 }
 
 export default function PresupuestoScreen() {
+  const [notiVisible, setNotiVisible] = useState(false);
+  const [configVisible, setConfigVisible] = useState(false);
+
+  const notificaciones = [
+    "Nuevo ingreso registrado",
+    "Presupuesto superado en Supermercado"
+  ];
   const [presupuestos, setPresupuestos] = useState([
     { id: 1, categoria: "Ropa para bebé", monto: "1,500" },
     { id: 2, categoria: "Gimnasio", monto: "500" },
@@ -53,7 +62,7 @@ export default function PresupuestoScreen() {
 
   return (
     <View style={estilos.pantalla}>
-      <Encabezado titulo="Mis Presupuestos" />
+      <Encabezado titulo="Mis Presupuestos" abrirNotificaciones={()=> setNotiVisible(true)} abrirConfiguraciones={()=>setConfigVisible(true)}/>
 
       <ScrollView contentContainerStyle={estilos.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={estilos.headerSection}>
@@ -123,6 +132,17 @@ export default function PresupuestoScreen() {
           setModalEditarVisible(false);
         }}
       />
+      <ModalNotificacionesGeneral
+        visible={notiVisible}
+        onClose={() => setNotiVisible(false)}
+        notificaciones={notificaciones}
+      />
+
+      <ModalConfiguracion
+        visible={configVisible}
+        onClose={() => setConfigVisible(false)}
+      />
+
     </View>
   );
 }
