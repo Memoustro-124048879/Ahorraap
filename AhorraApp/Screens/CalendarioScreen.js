@@ -136,11 +136,7 @@ export default function CalendarioScreen({ navigation }) {
 
       </ScrollView>
 
-      
-      <TouchableOpacity style={estilos.fabAgregar}>
-        <Ionicons name="add" size={30} color="white" />
-      </TouchableOpacity>
-
+  
     </View>
   );
 }
