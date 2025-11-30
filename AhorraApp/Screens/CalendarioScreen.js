@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, FlatList } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
+import ModalNotificacionesGeneral from '../components/ModalNotificacionesGeneral';
+import ModalConfiguracion from '../components/ModalConfiguracion';
 const color = {
   fondo: "#f1f2f3",
   verde: "#2DA458",
@@ -14,7 +16,7 @@ const color = {
 };
 
 
-function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
+function Encabezado({ titulo, abrirNotificaciones, abrirConfiguracion, saldo = 9638.35, moneda = "MXN" }) {
   return (
     <View style={estilos.encabezado}>
       <Text style={estilos.titulo}>{titulo}</Text>
@@ -27,10 +29,10 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
           <Text style={estilos.moneda}>{moneda}</Text>
         </View>
         <View style={estilos.iconosAccion}>
-          <TouchableOpacity style={{ marginRight: 15 }}>
+          <TouchableOpacity style={{ marginRight: 15 }}onPress={abrirNotificaciones}>
             <Ionicons name="notifications-outline" size={24} color={color.verde} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={abrirConfiguracion}>
             <Ionicons name="settings-outline" size={24} color={color.verde} />
           </TouchableOpacity>
         </View>
@@ -41,7 +43,13 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
 
 export default function CalendarioScreen({ navigation }) {
   const [diaSeleccionado, setDiaSeleccionado] = useState(28); 
+  const [notiVisible, setNotiVisible] = useState(false);
+  const [configVisible, setConfigVisible] = useState(false);
 
+  const notificaciones = [
+    "Nuevo ingreso registrado",
+    "Presupuesto superado en Supermercado"
+  ];
   
   const eventos = [
     { id: 1, titulo: "Pago Netflix", monto: "-$199", fecha: "29 Nov", tipo: "gasto", icono: "movie-open-outline" },
@@ -58,7 +66,9 @@ export default function CalendarioScreen({ navigation }) {
     <View style={estilos.pantalla}>
       <StatusBar barStyle="light-content" backgroundColor={color.verde} />
       
-      <Encabezado titulo="Agenda Financiera" />
+      <Encabezado titulo="Agenda Financiera"
+      abrirNotificaciones={() => setNotiVisible(true)}
+      abrirConfiguracion={() => setConfigVisible(true)} />
 
       <ScrollView contentContainerStyle={estilos.scrollContent} showsVerticalScrollIndicator={false}>
         
@@ -135,7 +145,16 @@ export default function CalendarioScreen({ navigation }) {
         </View>
 
       </ScrollView>
-
+          <ModalNotificacionesGeneral
+                  visible={notiVisible}
+                  onClose={() => setNotiVisible(false)}
+                  notificaciones={notificaciones}
+                />
+          
+                <ModalConfiguracion
+                  visible={configVisible}
+                  onClose={() => setConfigVisible(false)}
+                />
   
     </View>
   );
