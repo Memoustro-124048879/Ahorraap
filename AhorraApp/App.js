@@ -24,6 +24,8 @@ export default function App() {
         {/* 2. DASHBOARD CON BARRA */}
         <Stack.Screen name="MainApp" component={MainTabs} />
 
+        <Stack.Screen name="Perfil" component={PerfilScreen} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
