@@ -4,7 +4,6 @@ import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView } from 'rea
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 import ModalNotificaciones from './ModalNotificaciones';
-import ModalTema from './ModalTema';
 import ModalSeguridad from './ModalSeguridad';
 import ModalIdioma from './ModalIdioma';
 
