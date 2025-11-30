@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+import ModalConfiguracion from "../components/ModalConfiguracion";
+import ModalNotificacionesGeneral from "../components/ModalNotificacionesGeneral";
 const color = {
   fondo: "#f1f2f3",
   verde: "#2DA458", 
@@ -15,7 +17,7 @@ const color = {
 };
 
 
-function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
+function Encabezado({ titulo, abrirNotificaciones, abrirConfiguracion, saldo = 9638.35, moneda = "MXN" }) {
   return (
     <View style={estilos.encabezado}>
       <Text style={estilos.titulo}>{titulo}</Text>
@@ -28,10 +30,10 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
           <Text style={estilos.moneda}>{moneda}</Text>
         </View>
         <View style={estilos.iconosAccion}>
-          <TouchableOpacity style={{ marginRight: 15 }}>
+          <TouchableOpacity style={{ marginRight: 15 }}onPress={abrirNotificaciones}>
             <Ionicons name="notifications-outline" size={24} color={color.verde} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={abrirConfiguracion}>
             <Ionicons name="settings-outline" size={24} color={color.verde} />
           </TouchableOpacity>
         </View>
@@ -63,6 +65,13 @@ const BarraProgreso = ({ label, monto, total, colorBarra, icono }) => {
 
 
 export default function FinanzasScreen({ navigation }) {
+  const [notiVisible, setNotiVisible] = useState(false);
+  const [configVisible, setConfigVisible] = useState(false);
+  
+    const notificaciones = [
+      "Nuevo ingreso registrado",
+      "Presupuesto superado en Supermercado"
+    ];
   const [mesSeleccionado, setMesSeleccionado] = useState('Enero');
   const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto'];
 
@@ -79,7 +88,9 @@ export default function FinanzasScreen({ navigation }) {
       <StatusBar barStyle="light-content" backgroundColor={color.verde} />
       
      
-      <Encabezado titulo="Mis Finanzas" />
+      <Encabezado titulo="Mis Finanzas" 
+      abrirNotificaciones={() => setNotiVisible(true)}
+      abrirConfiguracion={() => setConfigVisible(true)}/>
 
       <ScrollView contentContainerStyle={estilos.scrollContent} showsVerticalScrollIndicator={false}>
         
@@ -147,6 +158,16 @@ export default function FinanzasScreen({ navigation }) {
         </TouchableOpacity>
 
       </ScrollView>
+       <ModalNotificacionesGeneral
+              visible={notiVisible}
+              onClose={() => setNotiVisible(false)}
+              notificaciones={notificaciones}
+            />
+      
+            <ModalConfiguracion
+              visible={configVisible}
+              onClose={() => setConfigVisible(false)}
+            />
     </View>
   );
 }
