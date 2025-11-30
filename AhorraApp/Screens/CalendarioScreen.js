@@ -154,6 +154,7 @@ export default function CalendarioScreen({ navigation }) {
                 <ModalConfiguracion
                   visible={configVisible}
                   onClose={() => setConfigVisible(false)}
+                  navigation={navigation}
                 />
   
     </View>

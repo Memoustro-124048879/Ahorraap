@@ -167,6 +167,7 @@ export default function FinanzasScreen({ navigation }) {
             <ModalConfiguracion
               visible={configVisible}
               onClose={() => setConfigVisible(false)}
+              navigation={navigation}
             />
     </View>
   );

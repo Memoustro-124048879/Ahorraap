@@ -107,6 +107,7 @@ export default function HomeScreen({ navigation }) {
               <ModalConfiguracion
                 visible={configVisible}
                 onClose={() => setConfigVisible(false)}
+                navigation={navigation}
               />
 
       

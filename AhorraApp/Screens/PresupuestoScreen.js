@@ -42,7 +42,7 @@ function Encabezado({ titulo, abrirNotificaciones, abrirConfiguraciones, saldo =
   );
 }
 
-export default function PresupuestoScreen() {
+export default function PresupuestoScreen({navigation}) {
   const [notiVisible, setNotiVisible] = useState(false);
   const [configVisible, setConfigVisible] = useState(false);
 
@@ -141,6 +141,7 @@ export default function PresupuestoScreen() {
       <ModalConfiguracion
         visible={configVisible}
         onClose={() => setConfigVisible(false)}
+        navigation={navigation}
       />
 
     </View>
