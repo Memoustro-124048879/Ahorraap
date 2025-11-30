@@ -5,7 +5,6 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 import ModalNotificaciones from './ModalNotificaciones';
 import ModalSeguridad from './ModalSeguridad';
-import ModalIdioma from './ModalIdioma';
 
 const color = {
   fondoModal: "#f1f2f3",
@@ -18,14 +17,13 @@ const color = {
 export default function ModalConfiguracion({ visible, onClose, navigation }) {
   const [temaVisible, setTemaVisible] = useState(false);
   const [seguridadVisible, setSeguridadVisible] = useState(false);
-  const [idiomaVisible, setIdiomaVisible] = useState(false);
   const [notiVisible, setNotiVisible] = useState(false);
   
   const opciones = [
     { id: 1, titulo: "Perfil", icono: "person-outline", action: () => {onClose(); navigation.navigate('Perfil');}},
     { id: 2, titulo: "Notificaciones", icono: "notifications-outline", action: () => setNotiVisible(true) },
     { id: 3, titulo: "Seguridad", icono: "lock-closed-outline", action: () => setSeguridadVisible(true) },
-    { id: 4, titulo: "Idioma", icono: "language-outline", action: () => setIdiomaVisible(true) },
+    
   ];
 
   return (
@@ -52,9 +50,8 @@ export default function ModalConfiguracion({ visible, onClose, navigation }) {
       </View>
       <ModalNotificaciones  visible={notiVisible} onClose={() => setNotiVisible(false)} />
 
-      <ModalTema visible={temaVisible} onClose={() => setTemaVisible(false)} />
       <ModalSeguridad visible={seguridadVisible} onClose={() => setSeguridadVisible(false)} />
-      <ModalIdioma visible={idiomaVisible} onClose={() => setIdiomaVisible(false)} />
+      
     </Modal>
   );
 }
