@@ -8,7 +8,6 @@ import RegistroScreen from './screens/RegistroScreen';
 import MainTabs from './screens/MainTabs';
 import PerfilScreen from './screens/PerfilScreen';
 
-<Stack.Screen name="Perfil" component={PerfilScreen} />
 
 const Stack = createStackNavigator();
 
