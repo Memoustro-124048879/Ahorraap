@@ -1,7 +1,12 @@
 // components/ModalConfiguracion.js
-import React from 'react';
+import React,{useState} from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+
+import ModalNotificaciones from './ModalNotificaciones';
+import ModalTema from './ModalTema';
+import ModalSeguridad from './ModalSeguridad';
+import ModalIdioma from './ModalIdioma';
 
 const color = {
   fondoModal: "#f1f2f3",
@@ -11,13 +16,18 @@ const color = {
   gris: "#888",
 };
 
-export default function ModalConfiguracion({ visible, onClose }) {
+export default function ModalConfiguracion({ visible, onClose, navigation }) {
+  const [temaVisible, setTemaVisible] = useState(false);
+  const [seguridadVisible, setSeguridadVisible] = useState(false);
+  const [idiomaVisible, setIdiomaVisible] = useState(false);
+  const [notiVisible, setNotiVisible] = useState(false);
+  
   const opciones = [
-    { id: 1, titulo: "Perfil", icono: "person-outline" },
-    { id: 2, titulo: "Notificaciones", icono: "notifications-outline" },
-    { id: 3, titulo: "Tema Oscuro / Claro", icono: "moon-outline" },
-    { id: 4, titulo: "Seguridad", icono: "lock-closed-outline" },
-    { id: 5, titulo: "Idioma", icono: "language-outline" },
+    { id: 1, titulo: "Perfil", icono: "person-outline", action: () => {onClose(); navigation.navigate('Perfil');}},
+    { id: 2, titulo: "Notificaciones", icono: "notifications-outline", action: () => setNotiVisible(true) },
+    { id: 3, titulo: "Tema Oscuro / Claro", icono: "moon-outline", action: () => setTemaVisible(true) },
+    { id: 4, titulo: "Seguridad", icono: "lock-closed-outline", action: () => setSeguridadVisible(true) },
+    { id: 5, titulo: "Idioma", icono: "language-outline", action: () => setIdiomaVisible(true) },
   ];
 
   return (
@@ -33,7 +43,7 @@ export default function ModalConfiguracion({ visible, onClose }) {
 
           <ScrollView contentContainerStyle={styles.lista}>
             {opciones.map((opcion) => (
-              <TouchableOpacity key={opcion.id} style={styles.tarjeta}>
+              <TouchableOpacity key={opcion.id} style={styles.tarjeta}onPress={opcion.action}>
                 <Ionicons name={opcion.icono} size={24} color={color.verde} style={{ marginRight: 15 }} />
                 <Text style={styles.textoOpcion}>{opcion.titulo}</Text>
                 <MaterialIcons name="keyboard-arrow-right" size={24} color={color.gris} style={{ marginLeft: 'auto' }} />
@@ -42,6 +52,11 @@ export default function ModalConfiguracion({ visible, onClose }) {
           </ScrollView>
         </View>
       </View>
+      <ModalNotificaciones  visible={notiVisible} onClose={() => setNotiVisible(false)} />
+
+      <ModalTema visible={temaVisible} onClose={() => setTemaVisible(false)} />
+      <ModalSeguridad visible={seguridadVisible} onClose={() => setSeguridadVisible(false)} />
+      <ModalIdioma visible={idiomaVisible} onClose={() => setIdiomaVisible(false)} />
     </Modal>
   );
 }
@@ -79,5 +94,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
   },
-  textoOpcion: { fontSize: 16, color: color.texto },
+  textoOpcion: { 
+    fontSize: 16, 
+    color: color.texto 
+  },
 });
