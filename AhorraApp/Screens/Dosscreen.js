@@ -1,4 +1,3 @@
-// screens/LoginScreen.js
 import React, { useState } from 'react';
 import {
   View,
@@ -14,34 +13,43 @@ import {
 
 const logoAhorrapp = require('../assets/full.jpg');
 
-const LoginScreen = () => {
+const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const handleLogin = () => {
+    if (email.trim() === '') {
+      Alert.alert('Error de ingreso', 'Por favor, ingresa tu correo o número de teléfono.');
+      return;
+    }
+
+    if (password.trim() === '') {
+      Alert.alert('Error de ingreso', 'Por favor, ingresa tu contraseña.');
+      return;
+    }
+
+    navigation.navigate('TransaccionesScreen'); 
+  };
   
   const [modalVisible, setModalVisible] = useState(false);
   const [emailRecuperacion, setEmailRecuperacion] = useState('');
 
-  
   const colorVerdePrincipal = '#469A49';
   const colorGrisInput = '#EAEAEA';
   const colorGrisTexto = '#A9A9A9';
   const colorLink = '#007BFF';
 
-  
   const handleEnviarRecuperacion = () => {
     if (!emailRecuperacion) {
       Alert.alert('Error', 'Por favor, ingresa un correo válido.');
       return;
     }
     
-    
     console.log('Enviando instrucciones a:', emailRecuperacion);
 
     setModalVisible(false);
     setEmailRecuperacion('');
 
-    
     Alert.alert(
       '¡Revisa tu correo!',
       `Se han enviado las instrucciones de recuperación a ${emailRecuperacion}.`
@@ -53,10 +61,8 @@ const LoginScreen = () => {
     
       <View style={styles.mainContainer}>
         
-       
         <Image source={logoAhorrapp} style={styles.logoImage} />
 
-       
         <View style={[styles.inputContainer, { backgroundColor: colorGrisInput }]}>
           <Text style={styles.icon}>👤</Text>
           <TextInput
@@ -84,12 +90,11 @@ const LoginScreen = () => {
 
         <TouchableOpacity 
           style={[styles.loginButton, { backgroundColor: colorVerdePrincipal }]}
-          onPress={() => console.log('Login con:', email, password)}
+          onPress={handleLogin}
         >
           <Text style={styles.loginButtonText}>Ingresar</Text>
         </TouchableOpacity>
 
-        
         <TouchableOpacity 
           onPress={() => setModalVisible(true)} 
         >
@@ -114,9 +119,9 @@ const LoginScreen = () => {
           setModalVisible(false);
         }}
       >
-       
+        
         <View style={styles.modalContainer}>
-         
+          
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Recuperar Contraseña</Text>
             <Text style={styles.modalSubtitle}>
@@ -211,7 +216,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 
-  // --- Estilos para el Modal ---
   modalContainer: {
     flex: 1,
     justifyContent: 'center',

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {Alert,View,Text,FlatList,StyleSheet,TouchableOpacity,Platform,} from "react-native";
+import { Alert, View, Text, FlatList, StyleSheet, TouchableOpacity, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 const color = {
@@ -24,7 +24,6 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
     <View style={estilos.encabezado}>
       <Text style={estilos.titulo}>{titulo}</Text>
       <View style={estilos.saldoTarjeta}>
-        
         <TouchableOpacity style={estilos.iconoCasa} onPress={() => {}}>
           <Text>🏦</Text>
         </TouchableOpacity>
@@ -34,11 +33,14 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
           <Text style={estilos.moneda}>{moneda}</Text>
         </View>
 
-       
         <View style={estilos.iconosAccion}>
-         
           <TouchableOpacity onPress={mostrarNotificacion}>
-            <Ionicons name="notifications-outline"size={22} color="#777" style={{ marginRight: 10 }}/>
+            <Ionicons
+              name="notifications-outline"
+              size={22}
+              color="#777"
+              style={{ marginRight: 10 }}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => {}}>
@@ -50,17 +52,40 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
   );
 }
 
-export default function RegistroTransferenciasScreen() {
-  const [transferencias] = useState([]);
-  const columnas = useMemo(() => ["Monto", "Categoría", "Fecha", "Descripción"],[] );
+function BarraInferior({ navigation }) {
+  return (
+    <View style={estilos.barraInferior}>
+      <TouchableOpacity style={estilos.icono} onPress={() => {}}>
+        <Ionicons name="person-outline" size={26} color="gray" />
+      </TouchableOpacity>
 
-  const mostrarAlertaInicio = () => {
-    if (Platform.OS === "web") {
-      window.alert("¿Deseas regresar a la pantalla principal?.");
-    } else {
-      Alert.alert("Inicio", "¿Deseas regresar a la pantalla principal?.");
-    }
-  };
+      <TouchableOpacity style={estilos.icono} onPress={() => {}}>
+        <Ionicons name="document-text-outline" size={26} color="gray" />
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={estilos.botonCentral} 
+        onPress={() => navigation.navigate('TransaccionesScreen')}
+      >
+        <Ionicons name="home-outline" size={30} color="white" />
+      </TouchableOpacity>
+
+      <TouchableOpacity style={estilos.icono} onPress={() => {}}>
+        <Ionicons name="stats-chart-outline" size={26} color="gray" />
+      </TouchableOpacity>
+
+      <TouchableOpacity style={estilos.icono} onPress={() => {}}>
+        <Ionicons name="calendar-outline" size={26} color="gray" />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+export default function RegistroTransferenciasScreen({ navigation }) {
+  const [transferencias] = useState([]);
+  const columnas = useMemo(
+    () => ["Monto", "Categoría", "Fecha", "Descripción"],
+    []
+  );
 
   return (
     <View style={estilos.pantalla}>
@@ -96,29 +121,7 @@ export default function RegistroTransferenciasScreen() {
           />
         </View>
       </View>
-
-    
-      <View style={estilos.barraInferior}>
-        <TouchableOpacity style={estilos.icono} onPress={() => {}}>
-          <Ionicons name="person-outline" size={26} color="gray" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={estilos.icono} onPress={() => {}}>
-          <Ionicons name="document-text-outline" size={26} color="gray" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={estilos.botonCentral} onPress={mostrarAlertaInicio}>
-          <Ionicons name="home-outline" size={30} color="white" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={estilos.icono} onPress={() => {}}>
-          <Ionicons name="stats-chart-outline" size={26} color="gray" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={estilos.icono} onPress={() => {}}>
-          <Ionicons name="calendar-outline" size={26} color="gray" />
-        </TouchableOpacity>
-      </View>
+      <BarraInferior navigation={navigation} />
     </View>
   );
 }

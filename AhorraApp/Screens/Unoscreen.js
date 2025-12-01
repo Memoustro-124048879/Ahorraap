@@ -1,75 +1,60 @@
-// screens/ProyectoScreen.js
 import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
-  TouchableOpacity, 
   Image,
+  Pressable,
 } from 'react-native';
 
 const logoCerdito = require('../assets/ahorra_app_logo.jpg');
 
+export default function ProyectoScreen({ navigation }) {
 
-const ProyectoScreen = () => { 
-
-  // --- Colores del diseño ---
   const colorVerdePrincipal = '#469A49';
   const colorTextoOscuro = '#333333';
   const colorTextoClaro = '#555555';
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      
-
-
       <View style={styles.mainContainer}>
-        
-        
-        
-        <Image source={logoCerdito} style={styles.logoImage} />
 
+        <Image source={logoCerdito} style={styles.logoImage} />
 
         <Text style={[styles.subtitle, { color: colorTextoClaro }]}>
           Cuida de tu dinero con
         </Text>
 
-       
-       
         <Text style={[styles.title, { color: colorTextoOscuro }]}>
           Ahorra+
         </Text>
 
-       
-       
         <Text style={[styles.title, { color: colorTextoOscuro }]}>
           App
         </Text>
 
-       
-        <TouchableOpacity 
+        <Pressable
           style={[styles.loginButton, { backgroundColor: colorVerdePrincipal }]}
-          onPress={() => console.log('Botón "Iniciar Sesión" presionado')}
+          onPress={() => navigation.navigate('LoginScreen')}
         >
           <Text style={styles.loginButtonText}>Iniciar sesión</Text>
-        </TouchableOpacity>
+        </Pressable>
 
       </View>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF', // Fondo blanco
+    backgroundColor: '#FFFFFF',
   },
- 
   mainContainer: {
     flex: 1,
-    justifyContent: 'center', 
-    alignItems: 'center',     
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
   },
   logoImage: {
@@ -102,5 +87,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-export default ProyectoScreen;

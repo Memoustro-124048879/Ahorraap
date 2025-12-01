@@ -1,6 +1,7 @@
 import React from "react";
 import { Platform, View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
+// import RegistroTransferenciasScreen from "./Ochoscreen"; // No se importa aquí
 
 const color = {
   fondo: "#f1f2f3",
@@ -39,22 +40,9 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
   );
 }
 
-export default function TransaccionesScreen() {
-  const handleBoton = (mensaje) => {
-    if (Platform.OS === "web") {
-      window.alert(mensaje);
-    } else {
-      Alert.alert("Acción", mensaje);
-    }
-  };
+export default function TransaccionesScreen({ navigation }) {
 
-  const handleHomePress = () => {
-    if (Platform.OS === "web") {
-      window.alert("¿Deseas regresar a la pantalla principal?");
-    } else {
-      Alert.alert("Inicio", "¿Deseas regresar a la pantalla principal?");
-    }
-  };
+  
 
   return (
     <View style={estilos.pantalla}>
@@ -63,19 +51,27 @@ export default function TransaccionesScreen() {
       <View style={estilos.cuerpo}>
         <View style={estilos.cajaBlanca}>
           <View style={estilos.gridOpciones}>
-            <TouchableOpacity style={estilos.botonOpcion} onPress={() => handleBoton("Registro de transferencias")}><Ionicons name="reload-outline" size={36} color="white" />
+            <TouchableOpacity 
+                style={estilos.botonOpcion} 
+                onPress={() => navigation.navigate('RegistroTransferenciasScreen')}
+            >
+              <Ionicons name="reload-outline" size={36} color="white" />
               <Text style={estilos.textoOpcion}>Registro de{"\n"}transferencias</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={estilos.botonOpcion} onPress={() => handleBoton("Nueva transferencia")}> <FontAwesome5 name="exchange-alt" size={32} color="white" />
+            <TouchableOpacity 
+                style={estilos.botonOpcion} 
+                onPress={() => Alert.alert("Acción", "Nueva transferencia no implementada")}
+            > 
+                <FontAwesome5 name="exchange-alt" size={32} color="white" />
               <Text style={estilos.textoOpcion}>Nueva{"\n"}transferencia</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={estilos.botonOpcion} onPress={() => handleBoton("Editado de las transferencias")}><MaterialIcons name="edit" size={36} color="white" />
+            <TouchableOpacity style={estilos.botonOpcion} onPress={() => Alert.alert("Acción", "Editado no implementado")}><MaterialIcons name="edit" size={36} color="white" />
               <Text style={estilos.textoOpcion}>Editado de las{"\n"}transferencias</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={estilos.botonOpcion} onPress={() => handleBoton("Listado de las transferencias")}><Ionicons name="list-outline" size={36} color="white" />
+            <TouchableOpacity style={estilos.botonOpcion} onPress={() => Alert.alert("Acción", "Listado no implementado")}><Ionicons name="list-outline" size={36} color="white" />
               <Text style={estilos.textoOpcion}>Listado de las{"\n"}transferencias</Text>
             </TouchableOpacity>
           </View>
@@ -87,7 +83,7 @@ export default function TransaccionesScreen() {
 
         <TouchableOpacity style={estilos.icono}><Ionicons name="document-text-outline" size={26} color="gray" /></TouchableOpacity>
 
-        <TouchableOpacity style={estilos.botonCentral} onPress={handleHomePress}><Ionicons name="home-outline" size={30} color="white" /></TouchableOpacity>
+        <TouchableOpacity style={estilos.botonCentral} onPress={() => navigation.navigate('TransaccionesScreen')} ><Ionicons name="home-outline" size={30} color="white" /></TouchableOpacity>
 
         <TouchableOpacity style={estilos.icono}><Ionicons name="stats-chart-outline" size={26} color="gray" /></TouchableOpacity>
 
@@ -127,14 +123,14 @@ const estilos = StyleSheet.create({
   },
   gridOpciones: {
     width: "100%",
-    maxWidth: 400, // ✅ para centrar y mantener tamaño similar al ejemplo
+    maxWidth: 400,
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
   botonOpcion: {
     backgroundColor: color.verde,
-    width: "48%", // dos por fila
+    width: "48%",
     aspectRatio: 1,
     borderRadius: 16,
     justifyContent: "center",
