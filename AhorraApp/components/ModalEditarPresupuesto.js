@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Modal, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useEffect, useState } from "react";
+import { View, Text, TextInput, StyleSheet, Modal, TouchableOpacity, Alert } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { getDB } from "../database/db";
 
 const color = {
   verde: "#2DA458",
@@ -8,28 +9,47 @@ const color = {
   textoSuave: "#666",
 };
 
-export default function ModalEditarPresupuesto({ visible, onClose, presupuesto, onGuardar }) {
+export default function ModalEditarPresupuesto({ visible, onClose, presupuesto, recargarPresupuestos }) {
   const [categoria, setCategoria] = useState("");
   const [monto, setMonto] = useState("");
 
+  // Cargar datos actuales
   useEffect(() => {
-    if(presupuesto){
-      setCategoria(presupuesto.categoria);
-      setMonto(presupuesto.monto.toString());
+    if (presupuesto) {
+      setCategoria(presupuesto.categoria || "");
+      setMonto(String(presupuesto.monto || ""));
     }
   }, [presupuesto]);
 
-  const handleGuardar = () => {
-    if(categoria && monto){
-      onGuardar({ ...presupuesto, categoria, monto });
-      onClose();
-    } else {
-      alert("Completa todos los campos");
+  const handleGuardar = async () => {
+    if (!categoria.trim()) {
+      return Alert.alert("Error", "La categoría no puede estar vacía.");
     }
-  }
+    if (!monto || isNaN(monto)) {
+      return Alert.alert("Error", "El monto debe ser un número válido.");
+    }
+
+    try {
+      const db = getDB();
+
+      await db.runAsync(
+        "UPDATE presupuestos SET categoria = ?, monto = ? WHERE id = ?",
+        [categoria.trim(), Number(monto), presupuesto.id]
+      );
+
+      recargarPresupuestos();
+      onClose();
+
+    } catch (error) {
+      console.log("Error editando presupuesto:", error);
+      Alert.alert("Error", "No se pudo guardar la edición.");
+    }
+  };
+
+  if (!presupuesto) return null;
 
   return (
-    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
+    <Modal animationType="fade" transparent visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.modal}>
 
@@ -43,12 +63,21 @@ export default function ModalEditarPresupuesto({ visible, onClose, presupuesto, 
           <View style={styles.body}>
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Categoría</Text>
-              <TextInput style={styles.input} value={categoria} onChangeText={setCategoria} />
+              <TextInput
+                style={styles.input}
+                value={categoria}
+                onChangeText={setCategoria}
+              />
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Monto</Text>
-              <TextInput style={styles.input} keyboardType="numeric" value={monto} onChangeText={setMonto} />
+              <TextInput
+                style={styles.input}
+                keyboardType="numeric"
+                value={monto}
+                onChangeText={setMonto}
+              />
             </View>
           </View>
 
@@ -63,56 +92,55 @@ export default function ModalEditarPresupuesto({ visible, onClose, presupuesto, 
 }
 
 const styles = StyleSheet.create({
-  overlay: { 
-    flex: 1, 
-    justifyContent: "center", 
-    alignItems: "center", 
-    backgroundColor: "rgba(0,0,0,0.5)" 
-},
-  modal: { 
-    width: "85%", 
-    backgroundColor: "white", 
-    borderRadius: 20, 
-    padding: 20, 
-    elevation: 10
- },
-  header: { 
-    flexDirection: "row", 
-    justifyContent: "space-between", 
-    marginBottom: 20 
-},
-  titulo: { 
-    fontSize: 20, 
-    fontWeight: "bold", 
-    color: color.texto 
-},
-  body: { 
-    marginBottom: 20
- },
-  inputGroup: { 
-    marginBottom: 15 
-},
-  label: { 
-    fontSize: 13, 
-    marginBottom: 5, 
-    color: color.textoSuave 
-},
-  input: { 
-    borderWidth: 1, 
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modal: {
+    width: "85%",
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  titulo: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: color.texto,
+  },
+  body: {
+    marginBottom: 20,
+  },
+  inputGroup: {
+    marginBottom: 15,
+  },
+  label: {
+    fontSize: 13,
+    marginBottom: 5,
+    color: color.textoSuave,
+  },
+  input: {
+    borderWidth: 1,
     borderColor: "#ddd",
-    borderRadius: 10, 
-    paddingHorizontal: 10, 
-    height: 45 
-},
-  boton: { 
-    backgroundColor: color.verde, 
-    paddingVertical: 12, 
-    borderRadius: 15, 
-    alignItems: "center"
- },
-  textoBoton: { 
-    color: "white", 
-    fontSize: 16, 
-    fontWeight: "bold"
- },
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    height: 45,
+  },
+  boton: {
+    backgroundColor: color.verde,
+    paddingVertical: 12,
+    borderRadius: 15,
+    alignItems: "center",
+  },
+  textoBoton: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
 });
