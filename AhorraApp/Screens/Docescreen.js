@@ -64,7 +64,7 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
   );
 }
 
-export default function Docescreen() {
+export default function Docescreen({ navigation }) {
   
     const [transferencias] = useState([]);
     
@@ -132,7 +132,7 @@ export default function Docescreen() {
                     <Ionicons name="options-outline" size={26} color="gray" /> 
                 </TouchableOpacity>
 
-                <TouchableOpacity style={estilos.botonCentral} onPress={mostrarAlertaInicio}>
+                <TouchableOpacity style={estilos.botonCentral} onPress={() => navigation.navigate('TransaccionesScreen')}>
                     <Ionicons name="home-outline" size={30} color="white" />
                 </TouchableOpacity>
 

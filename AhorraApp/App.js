@@ -7,19 +7,11 @@ import ProyectoScreen from './Screens/Unoscreen';
 import LoginScreen from './Screens/Dosscreen';
 import TransaccionesScreen from './Screens/Cuatroscreen';
 import RegistroTransferenciasScreen from './Screens/Ochoscreen';
+import Tresscreen from './Screens/Tresscreen';
+import GraficasScreen from './Screens/Cincoscreen';
+import Docescreen from './Screens/Docescreen';
 
 const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
-
-function BottomTabs() {
-    return (
-        <Tab.Navigator
-            initialRouteName="ProyectoScreen"
-        >
-            <Tab.Screen name="ProyectoScreen" component={ProyectoScreen} />
-        </Tab.Navigator>
-    );
-}
 export default function App() {
   return (
     <NavigationContainer>
@@ -28,6 +20,9 @@ export default function App() {
         <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="TransaccionesScreen" component={TransaccionesScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RegistroTransferenciasScreen" component={RegistroTransferenciasScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Tresscreen" component={Tresscreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Cincoscreen" component={GraficasScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Docescreen" component={Docescreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

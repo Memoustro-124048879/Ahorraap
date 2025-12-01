@@ -71,7 +71,7 @@ export default function TransaccionesScreen({ navigation }) {
               <Text style={estilos.textoOpcion}>Editado de las{"\n"}transferencias</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={estilos.botonOpcion} onPress={() => Alert.alert("Acción", "Listado no implementado")}><Ionicons name="list-outline" size={36} color="white" />
+            <TouchableOpacity style={estilos.botonOpcion} onPress={() => navigation.navigate('Docescreen')}><Ionicons name="list-outline" size={36} color="white" />
               <Text style={estilos.textoOpcion}>Listado de las{"\n"}transferencias</Text>
             </TouchableOpacity>
           </View>
@@ -85,8 +85,8 @@ export default function TransaccionesScreen({ navigation }) {
 
         <TouchableOpacity style={estilos.botonCentral} onPress={() => navigation.navigate('TransaccionesScreen')} ><Ionicons name="home-outline" size={30} color="white" /></TouchableOpacity>
 
-        <TouchableOpacity style={estilos.icono}><Ionicons name="stats-chart-outline" size={26} color="gray" /></TouchableOpacity>
-
+        <TouchableOpacity style={estilos.icono} onPress={() => navigation.navigate('Cincoscreen')}> <Ionicons name="stats-chart-outline" size={26} color="gray" /> </TouchableOpacity>
+        
         <TouchableOpacity style={estilos.icono}><Ionicons name="calendar-outline" size={26} color="gray" /></TouchableOpacity>
       </View>
     </View>

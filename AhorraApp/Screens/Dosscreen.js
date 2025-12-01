@@ -103,7 +103,7 @@ const LoginScreen = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => console.log('Ir a registrarse')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Tresscreen')}>
           <Text style={[styles.linkText, { color: colorLink, marginTop: 15 }]}>
             ¿No tienes una cuenta? Regístrate aquí
           </Text>

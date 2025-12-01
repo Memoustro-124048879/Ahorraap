@@ -25,7 +25,7 @@ const CustomInput = ({
   </View>
 );
 
-export default function Tresscreen() {
+export default function Tresscreen({ navigation }) {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -93,7 +93,7 @@ export default function Tresscreen() {
         />
         <TouchableOpacity
           style={styles.button}
-          onPress={handleRegister}
+         onPress={() => navigation.navigate('LoginScreen')}
           activeOpacity={0.8}
         >
           <Text style={styles.buttonText}>Listo</Text>

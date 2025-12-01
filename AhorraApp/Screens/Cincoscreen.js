@@ -11,14 +11,27 @@ const color = {
   textoClaro: "#ffffff",
   textoSuave: "#666",
   grisIcono: "#dcdcdc",
-  // Colores para las graficas
   barraGastos: '#e0b0af',
   barraIngresos: "#98d4b3",
   barraEgresos: "#a7d2e0",
   textoEtiqueta: "#444",
-  // Colores para botones de mes
   fondoBotonMes: "#e0e0e0",
   textoBotonMes: "#555",
+};
+
+const datosPorMes = {
+    Enero: { gastos: 85, ingresos: 70, egresos: 95 },
+    Febrero: { gastos: 60, ingresos: 80, egresos: 50 },
+    Marzo: { gastos: 90, ingresos: 95, egresos: 85 },
+    Abril: { gastos: 45, ingresos: 75, egresos: 60 },
+    Mayo: { gastos: 70, ingresos: 88, egresos: 75 },
+    Junio: { gastos: 80, ingresos: 65, egresos: 70 },
+    Julio: { gastos: 55, ingresos: 92, egresos: 40 },
+    Agosto: { gastos: 65, ingresos: 80, egresos: 55 },
+    Septiembre: { gastos: 75, ingresos: 78, egresos: 68 },
+    Octubre: { gastos: 95, ingresos: 60, egresos: 90 },
+    Noviembre: { gastos: 50, ingresos: 85, egresos: 30 },
+    Diciembre: { gastos: 98, ingresos: 72, egresos: 99 },
 };
 
 const Barra = ({label, barColor, widthPercentage})=>(
@@ -87,7 +100,7 @@ function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
   );
 }
 
-export default function Docescreen() {
+export default function GraficasScreen({ navigation }) {
   
     const [mesSeleccionado, setMesSeleccionado] = useState('Enero');
 
@@ -95,9 +108,10 @@ export default function Docescreen() {
     
    const handleMesPress = (mes) =>{
     setMesSeleccionado(mes);
-    mostrarAlerta(`Seleccionaste el mes: ${mes}.`);
    };
   
+    const datosActuales = datosPorMes[mesSeleccionado];
+
     const mostrarAlertaInicio = () => {
         mostrarAlerta("Navegando a la pantalla de Inicio/Home.");
     };
@@ -113,9 +127,9 @@ export default function Docescreen() {
             <View style={estilos.cuerpo}>
                 <View style={estilos.cajaBlanca}>
                     <View style={estilos.graficaContainer}>
-                       <Barra label="Gastos" barColor={color.barraGastos} widthPercentage={85}/>
-                       <Barra label="Ingresos" barColor={color.barraIngresos} widthPercentage={70}/>
-                       <Barra label="Egresos" barColor={color.barraEgresos} widthPercentage={95}/>
+                       <Barra label="Gastos" barColor={color.barraGastos} widthPercentage={datosActuales.gastos}/>
+                       <Barra label="Ingresos" barColor={color.barraIngresos} widthPercentage={datosActuales.ingresos}/>
+                       <Barra label="Egresos" barColor={color.barraEgresos} widthPercentage={datosActuales.egresos}/>
                     </View>
                         <View style={estilos.mesesContainer}>
                           {meses.map((mes)=>(
@@ -126,8 +140,11 @@ export default function Docescreen() {
                                 mesSeleccionado === mes && estilos.botonMesActivo
                               ]}
                               onPress={() => handleMesPress(mes)}
-                            >  
-                              <Text style={estilos.textoBotonMes}>{mes}</Text>
+                            >  
+                              <Text style={[
+                                estilos.textoBotonMes, 
+                                mesSeleccionado === mes && {color: color.textoClaro}
+                              ]}>{mes}</Text>
                             </TouchableOpacity>
                           ))}
                         </View>
@@ -144,12 +161,12 @@ export default function Docescreen() {
                     <Ionicons name="options-outline" size={26} color="gray" /> 
                 </TouchableOpacity>
 
-                <TouchableOpacity style={estilos.botonCentral} onPress={mostrarAlertaInicio}>
+                <TouchableOpacity style={estilos.botonCentral} onPress={() => navigation.navigate('TransaccionesScreen')} >
                     <Ionicons name="home-outline" size={30} color="white" />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={estilos.icono} onPress={() => handleNavPress('Estadísticas')}>
-                    <Ionicons name="stats-chart-outline" size={26} color="gray" />
+                <TouchableOpacity style={estilos.icono} onPress={() => navigation.navigate('Cincoscreen')}>
+                    <Ionicons name="stats-chart-outline" size={26} color={color.verdePrincipal} /> 
                 </TouchableOpacity>
 
                 <TouchableOpacity style={estilos.icono} onPress={() => handleNavPress('Calendario')}>
@@ -160,7 +177,6 @@ export default function Docescreen() {
     );
 }
 
-// Estilos
 const estilos = StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: color.fondoPantalla },
     encabezado: {
@@ -248,6 +264,10 @@ const estilos = StyleSheet.create({
       paddingVertical: 8,
       paddingHorizontal: 12,
       margin: 4,
+    },
+    botonMesActivo: {
+      backgroundColor: color.verdePrincipal,
+      elevation: 2,
     },
     textoBotonMes: {
       fontSize: 12,
