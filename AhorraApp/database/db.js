@@ -1,18 +1,29 @@
 // database/db.js
-import * as SQLite from 'expo-sqlite';
+import * as SQLite from "expo-sqlite";
 
-// Función para obtener la conexión a la base de datos
-export const getDB = async () => {
-  const db = await SQLite.openDatabaseAsync('ahorrapp.db');
-  return db;
-};
+let db = null;
 
-// Función para inicializar las tablas
+// Inicializar la BD y crear tablas
 export const initDB = async () => {
-  const db = await getDB();
   try {
+    if (!db) {
+      db = SQLite.openDatabaseSync("ahorraapp.db");
+    }
+
     await db.execAsync(`
-      PRAGMA journal_mode = WAL;
+      CREATE TABLE IF NOT EXISTS usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT,
+        email TEXT UNIQUE,
+        password TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS presupuestos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        categoria TEXT NOT NULL,
+        monto REAL NOT NULL
+      );
+
       CREATE TABLE IF NOT EXISTS transacciones (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         titulo TEXT,
@@ -23,8 +34,15 @@ export const initDB = async () => {
         descripcion TEXT
       );
     `);
-    console.log('Tabla transacciones lista (Modo Async) ✅');
+
+    console.log("Base de datos inicializada correctamente");
   } catch (error) {
-    console.log('Error inicializando DB:', error);
+    console.log("Error inicializando tablas:", error);
   }
+};
+
+// Retornar la conexión (para las pantallas)
+export const getDB = () => {
+  if (!db) db = SQLite.openDatabaseSync("ahorraapp.db");
+  return db;
 };
