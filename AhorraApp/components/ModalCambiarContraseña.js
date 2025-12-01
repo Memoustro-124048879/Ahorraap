@@ -1,17 +1,49 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Modal, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const color = {
   verde: "#2DA458",
   texto: "#101010",
   textoSuave: "#666",
-}
+};
 
 export default function ModalCambiarContrasena({ visible, onClose }) {
   const [actual, setActual] = useState("");
   const [nueva, setNueva] = useState("");
   const [confirmar, setConfirmar] = useState("");
+
+  const handleGuardar = () => {
+    // 1. Validar campos vacíos
+    if (!actual.trim() || !nueva.trim() || !confirmar.trim()) {
+      Alert.alert("Campos incompletos", "Por favor, llena todos los campos para continuar.");
+      return;
+    }
+
+    // 2. Validar que la nueva contraseña coincida con la confirmación
+    if (nueva !== confirmar) {
+      Alert.alert("Error", "Las contraseñas nuevas no coinciden. Inténtalo de nuevo.");
+      return;
+    }
+
+    // 3. Simular éxito
+    Alert.alert(
+      "Éxito", 
+      "Contraseña actualizada correctamente.",
+      [
+        {
+          text: "OK", 
+          onPress: () => {
+            // Limpiamos los campos y cerramos
+            setActual("");
+            setNueva("");
+            setConfirmar("");
+            onClose();
+          }
+        }
+      ]
+    );
+  };
 
   return (
     <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
@@ -32,6 +64,8 @@ export default function ModalCambiarContrasena({ visible, onClose }) {
               <TextInput
                 style={estilos.input}
                 secureTextEntry
+                placeholder="********"
+                placeholderTextColor="#ccc"
                 value={actual}
                 onChangeText={setActual}
               />
@@ -42,6 +76,8 @@ export default function ModalCambiarContrasena({ visible, onClose }) {
               <TextInput
                 style={estilos.input}
                 secureTextEntry
+                placeholder="********"
+                placeholderTextColor="#ccc"
                 value={nueva}
                 onChangeText={setNueva}
               />
@@ -52,6 +88,8 @@ export default function ModalCambiarContrasena({ visible, onClose }) {
               <TextInput
                 style={estilos.input}
                 secureTextEntry
+                placeholder="********"
+                placeholderTextColor="#ccc"
                 value={confirmar}
                 onChangeText={setConfirmar}
               />
@@ -59,7 +97,7 @@ export default function ModalCambiarContrasena({ visible, onClose }) {
 
           </View>
 
-          <TouchableOpacity style={estilos.botonModal}>
+          <TouchableOpacity style={estilos.botonModal} onPress={handleGuardar}>
             <Text style={estilos.textoBotonModal}>Guardar Cambios</Text>
           </TouchableOpacity>
 
@@ -82,10 +120,13 @@ const estilos = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     elevation: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 4 },
   },
   modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 20,
   },
   modalTitulo: {
@@ -110,6 +151,7 @@ const estilos = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     height: 45,
+    color: color.texto,
   },
   botonModal: {
     backgroundColor: color.verde,
