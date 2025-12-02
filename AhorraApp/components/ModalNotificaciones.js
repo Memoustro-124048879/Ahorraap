@@ -13,9 +13,9 @@ export default function ModalNotificaciones({ visible, onClose }) {
   const [email, setEmail] = useState(false);
 
   const handleGuardar = () => {
-    // Aquí iría la lógica para guardar en la base de datos
+    
     Alert.alert("Éxito", "Configuración de notificaciones guardada.");
-    onClose(); // <--- ESTO CIERRA EL MODAL
+    onClose(); 
   };
 
   return (
@@ -32,7 +32,6 @@ export default function ModalNotificaciones({ visible, onClose }) {
 
           <View style={estilos.modalBody}>
             
-            {/* Opción 1: Push */}
             <View style={estilos.row}>
               <Text style={estilos.label}>Notificaciones Push</Text>
               <Switch 
@@ -43,7 +42,7 @@ export default function ModalNotificaciones({ visible, onClose }) {
               />
             </View>
 
-            {/* Opción 2: Email */}
+            
             <View style={estilos.row}>
               <Text style={estilos.label}>Notificaciones por Email</Text>
               <Switch 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, StatusBar } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -8,37 +8,24 @@ import ModalNuevoPresupuesto from '../components/ModalNuevoPresupuesto';
 import ModalEditarPresupuesto from '../components/ModalEditarPresupuesto';
 import ModalNotificacionesGeneral from '../components/ModalNotificacionesGeneral';
 import ModalConfiguracion from '../components/ModalConfiguracion';
+import ModalFiltroPresupuesto from '../components/ModalFiltroPresupuesto'; 
 
-// Controlador de Base de Datos
-import { 
-  obtenerPresupuestos, 
-  agregarPresupuesto, 
-  editarPresupuesto, 
-  eliminarPresupuesto 
-} from '../controllers/PresupuestoController';
+// Controladores
+import { obtenerPresupuestos, agregarPresupuesto, editarPresupuesto, eliminarPresupuesto } from '../controllers/PresupuestoController';
+import { obtenerSaldoTotal } from '../controllers/FinanzasController';
 
 const color = {
-  fondo: "#f1f2f3",
-  verde: "#2DA458", 
-  tarjeta: "#ffffff",
-  texto: "#101010",
-  textoSuave: "#666",
-  rojo: "#e74c3c", 
-  itemVerde: '#d4edda',
-  textoEditar: '#6cbd86',
-  botonAgregar: '#2DA458', // Ajustado para que se vea fuerte el botón
+  fondo: "#f1f2f3", verde: "#2DA458", tarjeta: "#ffffff", texto: "#101010", textoSuave: "#666", rojo: "#e74c3c", itemVerde: '#d4edda', textoEditar: '#6cbd86', botonAgregar: '#2DA458',
 };
 
-function Encabezado({ titulo, abrirNotificaciones, abrirConfiguraciones, saldo = 9638.35, moneda = "MXN" }) {
+function Encabezado({ titulo, abrirNotificaciones, abrirConfiguraciones, saldo, moneda = "MXN" }) {
   return (
     <View style={estilos.encabezado}>
       <Text style={estilos.titulo}>{titulo}</Text>
       <View style={estilos.saldoTarjeta}>
-        <TouchableOpacity>
-          <Text style={{ fontSize:24 }}>🏦</Text>
-        </TouchableOpacity>
+        <TouchableOpacity><Text style={{ fontSize:24 }}>🏦</Text></TouchableOpacity>
         <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={estilos.saldo}>{saldo.toLocaleString("es-MX")}</Text>
+          <Text style={estilos.saldo}>{saldo.toLocaleString("es-MX", {minimumFractionDigits: 2})}</Text>
           <Text style={estilos.moneda}>{moneda}</Text>
         </View>
         <View style={estilos.iconosAccion}>
@@ -57,19 +44,21 @@ function Encabezado({ titulo, abrirNotificaciones, abrirConfiguraciones, saldo =
 export default function PresupuestoScreen({ navigation }) {
   const [notiVisible, setNotiVisible] = useState(false);
   const [configVisible, setConfigVisible] = useState(false);
-  const notificaciones = ["Nuevo ingreso registrado", "Presupuesto superado en Supermercado"];
+  const notificaciones = ["Nuevo ingreso registrado", "Presupuesto superado"];
 
-  // ESTADO DE PRESUPUESTOS (Desde BD)
   const [presupuestos, setPresupuestos] = useState([]);
-
-  // Modales
+  const [presupuestosFiltrados, setPresupuestosFiltrados] = useState([]); 
+  const [saldoActual, setSaldoActual] = useState(0);
+  
   const [modalNuevoVisible, setModalNuevoVisible] = useState(false);
   const [modalEditarVisible, setModalEditarVisible] = useState(false);
+  const [modalFiltroVisible, setModalFiltroVisible] = useState(false); 
   const [presupuestoSeleccionado, setPresupuestoSeleccionado] = useState(null);
+  
+  const [filtroActivo, setFiltroActivo] = useState(null); 
 
-  // CARGAR DATOS AL ENTRAR
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       cargarDatos();
     }, [])
   );
@@ -77,49 +66,54 @@ export default function PresupuestoScreen({ navigation }) {
   const cargarDatos = () => {
     obtenerPresupuestos((datos) => {
       setPresupuestos(datos);
+      setPresupuestosFiltrados(datos); 
+      setFiltroActivo(null); 
     });
+    obtenerSaldoTotal((total) => setSaldoActual(total));
   };
 
-  // --- FUNCIONES CRUD ---
+  // --- LÓGICA DE FILTRADO ---
+  const aplicarFiltro = (filtro) => {
+    setFiltroActivo(filtro);
+    
+    if (!filtro) {
+      setPresupuestosFiltrados(presupuestos); 
+      return;
+    }
 
-  const handleGuardarNuevo = ({ categoria, monto }) => {
-    agregarPresupuesto(categoria, monto, () => {
-      Alert.alert("Éxito", "Presupuesto agregado correctamente.");
-      cargarDatos(); // Recargar lista
+    const filtrados = presupuestos.filter(item => {
+      if (filtro.tipo === 'categoria') {
+        return item.categoria === filtro.valor;
+      }
+      if (filtro.tipo === 'fecha') {
+        return item.fecha.startsWith(filtro.valor); 
+      }
+      return true;
+    });
+    setPresupuestosFiltrados(filtrados);
+  };
+
+  const handleGuardarNuevo = ({ categoria, monto, fecha }) => {
+    agregarPresupuesto(categoria, monto, fecha, () => {
+      Alert.alert("Éxito", "Presupuesto agregado.");
+      cargarDatos(); 
       setModalNuevoVisible(false);
     });
   };
 
-  const handleGuardarEdicion = ({ id, categoria, monto }) => {
-    editarPresupuesto(id, categoria, monto, () => {
-      Alert.alert("Actualizado", "Presupuesto modificado correctamente.");
+  const handleGuardarEdicion = ({ id, categoria, monto, fecha }) => {
+    editarPresupuesto(id, categoria, monto, fecha, () => {
+      Alert.alert("Actualizado", "Presupuesto modificado.");
       cargarDatos();
       setModalEditarVisible(false);
     });
   };
 
   const handleEliminar = (id) => {
-    Alert.alert(
-      "Eliminar Presupuesto",
-      "¿Estás seguro? Esta acción no se puede deshacer.",
-      [
-        { text: "Cancelar", style: "cancel" },
-        { 
-          text: "Eliminar", 
-          style: "destructive", 
-          onPress: () => {
-            eliminarPresupuesto(id, () => {
-              cargarDatos();
-            });
-          }
-        }
-      ]
-    );
-  };
-
-  const abrirEditor = (item) => {
-    setPresupuestoSeleccionado(item);
-    setModalEditarVisible(true);
+    Alert.alert("Eliminar", "¿Borrar este presupuesto?", [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Eliminar", style: "destructive", onPress: () => eliminarPresupuesto(id, cargarDatos) }
+    ]);
   };
 
   return (
@@ -129,36 +123,47 @@ export default function PresupuestoScreen({ navigation }) {
       <Encabezado 
         titulo="Mis Presupuestos" 
         abrirNotificaciones={()=> setNotiVisible(true)} 
-        abrirConfiguraciones={()=>setConfigVisible(true)}
+        abrirConfiguraciones={()=>setConfigVisible(true)} 
+        saldo={saldoActual}
       />
 
       <ScrollView contentContainerStyle={estilos.scrollContent} showsVerticalScrollIndicator={false}>
+        
         <View style={estilos.headerSection}>
           <Text style={estilos.subtitulo}>Presupuestos Mensuales</Text>
-          <TouchableOpacity>
-             <Ionicons name="filter" size={20} color={color.verde} />
+          <TouchableOpacity onPress={() => setModalFiltroVisible(true)}>
+             <Ionicons name={filtroActivo ? "filter" : "filter-outline"} size={24} color={color.verde} />
           </TouchableOpacity>
         </View>
 
-        {/* LISTA DE PRESUPUESTOS */}
+       
+        {filtroActivo && (
+          <View style={estilos.chipFiltro}>
+            <Text style={{color:'white', marginRight: 5}}>Filtrado por: {filtroActivo.valor}</Text>
+            <TouchableOpacity onPress={() => aplicarFiltro(null)}>
+               <Ionicons name="close-circle" size={18} color="white" />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        
         <View style={estilos.listaContainer}>
-          {presupuestos.length === 0 ? (
-             <Text style={{textAlign:'center', color:'#999', marginTop: 20}}>No tienes presupuestos aún.</Text>
+          {presupuestosFiltrados.length === 0 ? (
+             <Text style={{textAlign:'center', color:'#999', marginTop: 20}}>No hay presupuestos.</Text>
           ) : (
-            presupuestos.map((item) => (
+            presupuestosFiltrados.map((item) => (
               <View key={item.id} style={estilos.cardPresupuesto}>
                 <View style={estilos.barraLateral} />
                 <View style={estilos.cardContent}>
                   <View>
                     <Text style={estilos.categoriaTexto}>{item.categoria}</Text>
                     <Text style={estilos.montoTexto}>${item.monto.toLocaleString()} <Text style={{fontSize:12, color:'#999'}}>MXN</Text></Text>
+                    <Text style={{fontSize:12, color:color.textoSuave, marginTop:2}}>Vence: {item.fecha}</Text>
                   </View>
-
                   <View style={estilos.acciones}>
-                    <TouchableOpacity style={estilos.btnIcono} onPress={() => abrirEditor(item)}>
+                    <TouchableOpacity style={estilos.btnIcono} onPress={() => { setPresupuestoSeleccionado(item); setModalEditarVisible(true); }}>
                       <MaterialIcons name="edit" size={22} color={color.verde} />
                     </TouchableOpacity>
-
                     <TouchableOpacity style={estilos.btnIcono} onPress={() => handleEliminar(item.id)}>
                       <MaterialIcons name="delete-outline" size={22} color={color.rojo} />
                     </TouchableOpacity>
@@ -169,41 +174,23 @@ export default function PresupuestoScreen({ navigation }) {
           )}
         </View>
 
-        <TouchableOpacity 
-          style={estilos.botonAgregar}
-          onPress={() => setModalNuevoVisible(true)} 
-        >
+        <TouchableOpacity style={estilos.botonAgregar} onPress={() => setModalNuevoVisible(true)}>
           <Ionicons name="add-circle-outline" size={24} color="white" style={{marginRight: 8}}/>
           <Text style={estilos.textoBoton}>Nuevo Presupuesto</Text>
         </TouchableOpacity>
       </ScrollView>
 
-      {/* --- MODALES --- */}
-      <ModalNuevoPresupuesto
-        visible={modalNuevoVisible}
-        onClose={() => setModalNuevoVisible(false)}
-        onGuardar={handleGuardarNuevo} // Conectado a BD
+     
+      <ModalFiltroPresupuesto 
+        visible={modalFiltroVisible} 
+        onClose={() => setModalFiltroVisible(false)} 
+        datos={presupuestos} 
+        onAplicar={aplicarFiltro} 
       />
-
-      <ModalEditarPresupuesto
-        visible={modalEditarVisible}
-        presupuesto={presupuestoSeleccionado}
-        onClose={() => setModalEditarVisible(false)}
-        onGuardar={handleGuardarEdicion} // Conectado a BD
-      />
-
-      <ModalNotificacionesGeneral
-        visible={notiVisible}
-        onClose={() => setNotiVisible(false)}
-        notificaciones={notificaciones}
-      />
-
-      <ModalConfiguracion
-        visible={configVisible}
-        onClose={() => setConfigVisible(false)}
-        navigation={navigation}
-      />
-
+      <ModalNuevoPresupuesto visible={modalNuevoVisible} onClose={() => setModalNuevoVisible(false)} onGuardar={handleGuardarNuevo} />
+      <ModalEditarPresupuesto visible={modalEditarVisible} presupuesto={presupuestoSeleccionado} onClose={() => setModalEditarVisible(false)} onGuardar={handleGuardarEdicion} />
+      <ModalNotificacionesGeneral visible={notiVisible} onClose={() => setNotiVisible(false)} notificaciones={notificaciones} />
+      <ModalConfiguracion visible={configVisible} onClose={() => setConfigVisible(false)} navigation={navigation} />
     </View>
   );
 }
@@ -220,13 +207,25 @@ const estilos = StyleSheet.create({
   headerSection: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15, marginTop: 10 },
   subtitulo: { fontSize: 18, fontWeight: 'bold', color: '#333' },
   listaContainer: { gap: 15 },
-  cardPresupuesto: { backgroundColor: 'white', borderRadius: 15, flexDirection: 'row', overflow: 'hidden', elevation: 2, height: 80 },
+  cardPresupuesto: { backgroundColor: 'white', borderRadius: 15, flexDirection: 'row', overflow: 'hidden', elevation: 2, height: 90 },
   barraLateral: { width: 6, backgroundColor: color.verde, height: '100%' },
   cardContent: { flex: 1, paddingHorizontal: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  categoriaTexto: { fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 4 },
+  categoriaTexto: { fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 2 },
   montoTexto: { fontSize: 18, fontWeight: 'bold', color: color.verde },
   acciones: { flexDirection: 'row', gap: 15 },
   btnIcono: { padding: 5 },
   botonAgregar: { backgroundColor: color.botonAgregar, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 15, borderRadius: 25, marginTop: 30, elevation: 4 },
-  textoBoton: { color: 'white', fontSize: 16, fontWeight: 'bold' }
+  textoBoton: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+  
+ 
+  chipFiltro: {
+    flexDirection: 'row',
+    backgroundColor: color.verde,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    alignItems: 'center',
+    marginBottom: 15
+  }
 });

@@ -27,7 +27,7 @@ export default function ModalExtractos({ visible, onClose }) {
       <View style={estilos.modalOverlay}>
         <View style={estilos.modalContent}>
 
-          {/* Header */}
+          
           <View style={estilos.modalHeader}>
             <Text style={estilos.modalTitulo}>Extractos Mensuales</Text>
             <TouchableOpacity onPress={onClose}>

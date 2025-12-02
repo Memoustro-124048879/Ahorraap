@@ -1,10 +1,10 @@
 import { getDB } from '../database/db';
 
-// 1. OBTENER TODOS (Leer)
+// 1. OBTENER TODOS
 export const obtenerPresupuestos = async (callback) => {
   const db = await getDB();
   try {
-    const resultados = await db.getAllAsync("SELECT * FROM presupuestos");
+    const resultados = await db.getAllAsync("SELECT * FROM presupuestos ORDER BY id DESC");
     callback(resultados);
   } catch (error) {
     console.log("Error obteniendo presupuestos:", error);
@@ -12,28 +12,28 @@ export const obtenerPresupuestos = async (callback) => {
   }
 };
 
-// 2. AGREGAR (Crear)
-export const agregarPresupuesto = async (categoria, monto, callback) => {
+// 2. AGREGAR 
+export const agregarPresupuesto = async (categoria, monto, fecha, callback) => {
   const db = await getDB();
   try {
     await db.runAsync(
-      "INSERT INTO presupuestos (categoria, monto) VALUES (?, ?)",
-      [categoria, parseFloat(monto)]
+      "INSERT INTO presupuestos (categoria, monto, fecha) VALUES (?, ?, ?)",
+      [categoria, parseFloat(monto), fecha]
     );
-    console.log("Presupuesto agregado");
+    console.log("Presupuesto agregado con fecha");
     if (callback) callback();
   } catch (error) {
     console.log("Error agregando presupuesto:", error);
   }
 };
 
-// 3. EDITAR (Actualizar)
-export const editarPresupuesto = async (id, categoria, monto, callback) => {
+// 3. EDITAR 
+export const editarPresupuesto = async (id, categoria, monto, fecha, callback) => {
   const db = await getDB();
   try {
     await db.runAsync(
-      "UPDATE presupuestos SET categoria = ?, monto = ? WHERE id = ?",
-      [categoria, parseFloat(monto), id]
+      "UPDATE presupuestos SET categoria = ?, monto = ?, fecha = ? WHERE id = ?",
+      [categoria, parseFloat(monto), fecha, id]
     );
     console.log("Presupuesto actualizado");
     if (callback) callback();
@@ -42,7 +42,7 @@ export const editarPresupuesto = async (id, categoria, monto, callback) => {
   }
 };
 
-// 4. ELIMINAR (Borrar)
+// 4. ELIMINAR
 export const eliminarPresupuesto = async (id, callback) => {
   const db = await getDB();
   try {

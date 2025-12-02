@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import { initDB } from './database/db'; 
-import { inicializarAdmin } from './controllers/UserController'; // <--- IMPORTAR ESTO
+import { inicializarAdmin } from './controllers/UserController'; 
 
 import SplashScreen from './screens/SplashScreen';
 import LoginScreen from './screens/LoginScreen';
@@ -16,8 +16,8 @@ export default function App() {
   
   useEffect(() => {
     const setup = async () => {
-      await initDB();         // Crea las tablas
-      await inicializarAdmin(); // Crea al usuario Tony si no existe
+      await initDB();         
+      await inicializarAdmin(); 
     };
     setup();
   }, []);

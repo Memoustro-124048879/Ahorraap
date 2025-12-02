@@ -21,11 +21,11 @@ const DatoFila = ({ label, valor, icono, editable, onChangeText, isLocked }) => 
           style={estilos.inputEdit} 
           value={valor} 
           onChangeText={onChangeText}
-          autoFocus={true} // Enfoca automáticamente al editar
+          autoFocus={true} 
         />
       ) : (
         <Text style={[estilos.datoValor, isLocked && {color: '#999'}]}>
-          {valor || "Sin dato"} {/* Muestra algo si viene vacío */}
+          {valor || "Sin dato"} 
         </Text>
       )}
     </View>
@@ -45,13 +45,12 @@ export default function ModalDatos({ visible, onClose, datosActuales, onGuardar 
   
   const [isEditing, setIsEditing] = useState(false);
 
-  // --- ESTE EFECTO ES LA CLAVE ---
-  // Cada vez que se abre el modal O cambian los datos, actualizamos el estado local
+  
   useEffect(() => {
     if (datosActuales) {
       setTempData(datosActuales);
     }
-    // Si se cierra y se abre, reiniciar el modo edición a falso
+    
     if (!visible) {
       setIsEditing(false);
     }

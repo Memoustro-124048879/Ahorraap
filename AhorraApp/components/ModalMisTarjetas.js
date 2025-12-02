@@ -22,27 +22,25 @@ const color = {
 
 export default function ModalMisTarjetas({ visible, onClose }) {
   
-  // 1. MODO VISUAL: 'lista' o 'formulario'
   const [modo, setModo] = useState('lista');
 
-  // 2. ESTADO DE LAS TARJETAS (Simulamos base de datos)
+  
   const [tarjetas, setTarjetas] = useState([
     { id: '1', banco: 'Bancomer', numero: '1234567812349821', tipo: 'debito' },
     { id: '2', banco: 'Santander', numero: '8765432187654432', tipo: 'credito' },
   ]);
 
-  // 3. ESTADOS DEL FORMULARIO
+  
   const [formBanco, setFormBanco] = useState('');
   const [formNumero, setFormNumero] = useState('');
   const [formFecha, setFormFecha] = useState('');
   const [formCVV, setFormCVV] = useState('');
 
-  // --- FUNCIONES ---
+  
 
-  // Obtener los últimos 4 dígitos
   const getUltimos4 = (num) => num.slice(-4);
 
-  // Eliminar tarjeta
+  
   const confirmarEliminar = (id) => {
     Alert.alert(
       "Eliminar Tarjeta",
@@ -58,7 +56,7 @@ export default function ModalMisTarjetas({ visible, onClose }) {
     );
   };
 
-  // Guardar nueva tarjeta
+  
   const guardarTarjeta = () => {
     if (!formBanco || formNumero.length < 16 || !formFecha || !formCVV) {
       Alert.alert("Datos incompletos", "Por favor revisa la información de tu tarjeta.");
@@ -69,12 +67,12 @@ export default function ModalMisTarjetas({ visible, onClose }) {
       id: Date.now().toString(),
       banco: formBanco,
       numero: formNumero,
-      tipo: 'debito' // Por defecto para el ejemplo
+      tipo: 'debito' 
     };
 
     setTarjetas([...tarjetas, nuevaTarjeta]);
     
-    // Limpiar y volver a la lista
+    
     setFormBanco('');
     setFormNumero('');
     setFormFecha('');
@@ -83,10 +81,10 @@ export default function ModalMisTarjetas({ visible, onClose }) {
     Alert.alert("Éxito", "Tarjeta agregada correctamente.");
   };
 
-  // Renderizar cada ítem de la lista
+  
   const renderItem = ({ item }) => (
     <View style={estilos.tarjetaRow}>
-      {/* Icono y Datos */}
+     
       <View style={estilos.infoContainer}>
         <View style={estilos.iconoCaja}>
           <Ionicons name={item.tipo === 'credito' ? "card" : "card-outline"} size={24} color={color.verde} />
@@ -97,7 +95,7 @@ export default function ModalMisTarjetas({ visible, onClose }) {
         </View>
       </View>
 
-      {/* Botón Eliminar */}
+    
       <TouchableOpacity onPress={() => confirmarEliminar(item.id)} style={estilos.btnEliminar}>
         <Ionicons name="trash-outline" size={22} color={color.rojo} />
       </TouchableOpacity>
@@ -109,14 +107,14 @@ export default function ModalMisTarjetas({ visible, onClose }) {
       <View style={estilos.modalOverlay}>
         <View style={estilos.modalContent}>
 
-          {/* HEADER DEL MODAL */}
+         
           <View style={estilos.modalHeader}>
             {modo === 'formulario' ? (
               <TouchableOpacity onPress={() => setModo('lista')}>
                 <Ionicons name="arrow-back" size={28} color={color.texto} />
               </TouchableOpacity>
             ) : (
-              <View style={{width: 28}} /> // Espaciador para centrar título
+              <View style={{width: 28}} />
             )}
             
             <Text style={estilos.modalTitulo}>
@@ -128,10 +126,10 @@ export default function ModalMisTarjetas({ visible, onClose }) {
             </TouchableOpacity>
           </View>
 
-          {/* --- CONTENIDO CAMBIANTE --- */}
+          
           
           {modo === 'lista' ? (
-            // VISTA 1: LISTA DE TARJETAS
+            
             <>
               <View style={{ maxHeight: 300 }}>
                 <FlatList 
@@ -150,7 +148,7 @@ export default function ModalMisTarjetas({ visible, onClose }) {
               </TouchableOpacity>
             </>
           ) : (
-            // VISTA 2: FORMULARIO
+          
             <ScrollView>
               <Text style={estilos.label}>Nombre del Banco</Text>
               <TextInput 
@@ -236,7 +234,7 @@ const estilos = StyleSheet.create({
     color: color.texto,
   },
   
-  // Estilos de Lista
+  
   tarjetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -253,7 +251,7 @@ const estilos = StyleSheet.create({
     width: 45,
     height: 45,
     borderRadius: 10,
-    backgroundColor: '#f0f9f4', // Verde muy suave
+    backgroundColor: '#f0f9f4', 
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
@@ -277,7 +275,7 @@ const estilos = StyleSheet.create({
     fontStyle: 'italic',
   },
 
-  // Estilos de Formulario
+  
   label: {
     fontSize: 14,
     fontWeight: '600',
@@ -299,7 +297,6 @@ const estilos = StyleSheet.create({
     justifyContent: 'space-between',
   },
 
-  // Botón Principal Verde
   botonPrincipal: {
     backgroundColor: color.verde,
     borderRadius: 15,

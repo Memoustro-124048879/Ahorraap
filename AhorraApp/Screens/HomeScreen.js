@@ -1,16 +1,18 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, StatusBar } from "react-native";
 import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
+import { useFocusEffect } from '@react-navigation/native';
 
-// Modales
+// --- MODALES ---
 import ModalNuevaTransaccion from "../components/ModalNuevaTransaccion";
 import ModalEditarTransacciones from "../components/ModalEditarTransacciones";
-import ModalListadoTransacciones from "../components/ModalListadoTransacciones"; // Usaremos este como historial real
+import ModalListadoTransacciones from "../components/ModalListadoTransacciones"; 
+import ModalHistorial from "../components/ModalHistorial"; 
 import ModalNotificacionesGeneral from "../components/ModalNotificacionesGeneral";
 import ModalConfiguracion from "../components/ModalConfiguracion";
 
-// Controlador
-import { agregarTransaccion } from "../controllers/FinanzasController"; // <--- IMPORTANTE
+// --- CONTROLADORES ---
+import { agregarTransaccion, obtenerSaldoTotal } from "../controllers/FinanzasController";
 
 const color = {
   fondo: "#f1f2f3",
@@ -20,14 +22,14 @@ const color = {
   textoSuave: "#666",
 };
 
-function Encabezado({ titulo, abrirNotificaciones, abrirConfiguracion, saldo = 9638.35, moneda = "MXN" }) {
+function Encabezado({ titulo, abrirNotificaciones, abrirConfiguracion, saldo, moneda = "MXN" }) {
   return (
     <View style={estilos.encabezado}>
       <Text style={estilos.titulo}>{titulo}</Text>
       <View style={estilos.saldoTarjeta}>
         <TouchableOpacity><Text style={{fontSize:24}}>🏦</Text></TouchableOpacity>
         <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={estilos.saldo}>{saldo.toLocaleString("es-MX")}</Text>
+          <Text style={estilos.saldo}>{saldo.toLocaleString("es-MX", {minimumFractionDigits: 2})}</Text>
           <Text style={estilos.moneda}>{moneda}</Text>
         </View>
         <View style={estilos.iconosAccion}>
@@ -45,51 +47,71 @@ function Encabezado({ titulo, abrirNotificaciones, abrirConfiguracion, saldo = 9
 
 export default function HomeScreen({ navigation }) {
   
+  const [saldoActual, setSaldoActual] = useState(0);
+  
+  
   const [modalNueva, setModalNueva] = useState(false);
   const [modalEditar, setModalEditar] = useState(false);
-  const [modalListado, setModalListado] = useState(false);
+  const [modalListado, setModalListado] = useState(false); 
+  const [modalHistorial, setModalHistorial] = useState(false); 
+  
   const [notiVisible, setNotiVisible] = useState(false);
   const [configVisible, setConfigVisible] = useState(false);
 
   const notificaciones = ["Nuevo ingreso registrado", "Presupuesto superado"];
 
-  // --- FUNCIÓN PARA GUARDAR ---
+  
+  useFocusEffect(
+    useCallback(() => {
+      actualizarSaldo();
+    }, [])
+  );
+
+  const actualizarSaldo = () => {
+    obtenerSaldoTotal((total) => setSaldoActual(total));
+  };
+
   const handleGuardarTransaccion = (datos) => {
-    // Llamamos al controlador
     agregarTransaccion(datos, () => {
-      // Callback de éxito
       Alert.alert("Éxito", "Transacción guardada correctamente.");
-      setModalNueva(false); // Cerramos el modal
+      setModalNueva(false);
+      actualizarSaldo(); 
     });
   };
 
   return (
     <View style={estilos.pantalla}>
+      <StatusBar barStyle="light-content" backgroundColor={color.verde} />
+      
       <Encabezado 
         titulo="Mis Transacciones" 
         abrirNotificaciones={() => setNotiVisible(true)} 
-        abrirConfiguracion={() => setConfigVisible(true)} 
+        abrirConfiguracion={() => setConfigVisible(true)}
+        saldo={saldoActual}
       />
 
       <ScrollView contentContainerStyle={estilos.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={estilos.gridOpciones}>
             
-            {/* Usamos el ModalListado para ver el historial REAL */}
-            <TouchableOpacity style={estilos.botonOpcion} onPress={() => setModalListado(true)}>
+            {/* BOTÓN 1: HISTORIAL SIMPLE */}
+            <TouchableOpacity style={estilos.botonOpcion} onPress={() => setModalHistorial(true)}>
               <Ionicons name="reload-outline" size={36} color="white" />
               <Text style={estilos.textoOpcion}>Historial de{"\n"}transacciones</Text>
             </TouchableOpacity>
 
+            {/* BOTÓN 2: NUEVA TRANSACCIÓN */}
             <TouchableOpacity style={estilos.botonOpcion} onPress={() => setModalNueva(true)}>
                <FontAwesome5 name="exchange-alt" size={30} color="white" />
               <Text style={estilos.textoOpcion}>Nueva{"\n"}transacción</Text>
             </TouchableOpacity>
 
+            {/* BOTÓN 3: EDITAR / ELIMINAR */}
             <TouchableOpacity style={estilos.botonOpcion} onPress={() => setModalEditar(true)}>
               <MaterialIcons name="edit" size={36} color="white" />
               <Text style={estilos.textoOpcion}>Editar{"\n"}transacciones</Text>
             </TouchableOpacity>
 
+            {/* BOTÓN 4: LISTADO CON FILTROS */}
             <TouchableOpacity style={estilos.botonOpcion} onPress={() => setModalListado(true)}>
               <Ionicons name="list-outline" size={36} color="white" />
               <Text style={estilos.textoOpcion}>Listado de{"\n"}transacciones</Text>
@@ -98,21 +120,36 @@ export default function HomeScreen({ navigation }) {
         </View>
       </ScrollView>
 
-      {/* --- MODALES CONECTADOS --- */}
+      {/* --- MODALES --- */}
       
       <ModalNuevaTransaccion 
         visible={modalNueva} 
         onClose={() => setModalNueva(false)} 
-        onSave={handleGuardarTransaccion} // <--- CONEXIÓN AQUÍ
+        onSave={handleGuardarTransaccion} 
+        saldoDisponible={saldoActual} 
       />
 
+      {/* Modal Filtros (Botón 4) */}
       <ModalListadoTransacciones 
         visible={modalListado} 
         onClose={() => setModalListado(false)} 
-        // El modal listado ahora leerá de la BD internamente (siguiente paso)
+      />
+      
+      {/* Modal Simple (Botón 1) */}
+      <ModalHistorial 
+        visible={modalHistorial} 
+        onClose={() => setModalHistorial(false)} 
       />
 
-      <ModalEditarTransacciones visible={modalEditar} onClose={() => setModalEditar(false)} />
+      {/* Modal Edición (Botón 3) */}
+      <ModalEditarTransacciones 
+        visible={modalEditar} 
+        onClose={() => {
+          setModalEditar(false);
+          actualizarSaldo(); 
+        }} 
+      />
+
       <ModalNotificacionesGeneral visible={notiVisible} onClose={() => setNotiVisible(false)} notificaciones={notificaciones} />
       <ModalConfiguracion visible={configVisible} onClose={() => setConfigVisible(false)} navigation={navigation} />
       

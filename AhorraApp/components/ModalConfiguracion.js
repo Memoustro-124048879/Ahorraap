@@ -1,4 +1,4 @@
-// components/ModalConfiguracion.js
+
 import React,{useState} from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';

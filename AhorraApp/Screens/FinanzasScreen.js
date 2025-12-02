@@ -6,7 +6,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import ModalConfiguracion from "../components/ModalConfiguracion";
 import ModalNotificacionesGeneral from "../components/ModalNotificacionesGeneral";
 
-import { obtenerBalancePorMes, insertarDatosPrueba } from "../controllers/FinanzasController";
+
+import { obtenerBalancePorMes, insertarDatosPrueba, obtenerSaldoTotal } from "../controllers/FinanzasController";
 
 const color = {
   fondo: "#f1f2f3",
@@ -25,14 +26,15 @@ const mapaMeses = {
   'Septiembre': '09', 'Octubre': '10', 'Noviembre': '11', 'Diciembre': '12'
 };
 
-function Encabezado({ titulo, abrirNotificaciones, abrirConfiguracion, saldo = 9638.35, moneda = "MXN" }) {
+function Encabezado({ titulo, abrirNotificaciones, abrirConfiguracion, saldo, moneda = "MXN" }) {
   return (
     <View style={estilos.encabezado}>
       <Text style={estilos.titulo}>{titulo}</Text>
       <View style={estilos.saldoTarjeta}>
         <TouchableOpacity><Text style={{fontSize:24}}>🏦</Text></TouchableOpacity>
         <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={estilos.saldo}>{saldo.toLocaleString("es-MX")}</Text>
+          {/* Saldo Dinámico */}
+          <Text style={estilos.saldo}>{saldo.toLocaleString("es-MX", {minimumFractionDigits: 2})}</Text>
           <Text style={estilos.moneda}>{moneda}</Text>
         </View>
         <View style={estilos.iconosAccion}>
@@ -73,22 +75,30 @@ export default function FinanzasScreen({ navigation }) {
 
   const [mesSeleccionado, setMesSeleccionado] = useState('Enero');
   const meses = Object.keys(mapaMeses);
+  
   const [dataActual, setDataActual] = useState({ ingresos: 0, gastos: 0, meta: 15000 });
+  const [saldoActual, setSaldoActual] = useState(0); // Estado para el Header
   const [cargando, setCargando] = useState(false);
 
-  // Recargar al entrar o cambiar mes
+  
   useFocusEffect(
     useCallback(() => {
       cargarDatosDelMes(mesSeleccionado);
+      actualizarSaldoGlobal();
     }, [mesSeleccionado])
   );
+
+  const actualizarSaldoGlobal = () => {
+    obtenerSaldoTotal((total) => setSaldoActual(total));
+  };
 
   const cargarDatosDelMes = (mes) => {
     setCargando(true);
     const numeroMes = mapaMeses[mes];
     
     obtenerBalancePorMes(numeroMes, (resultados) => {
-      setDataActual(resultados);
+      const datosLimpios = resultados || { ingresos: 0, gastos: 0, meta: 15000 };
+      setDataActual(datosLimpios);
       setCargando(false);
     });
   };
@@ -97,6 +107,7 @@ export default function FinanzasScreen({ navigation }) {
     insertarDatosPrueba(() => {
       alert("Base de datos reiniciada y cargada.");
       cargarDatosDelMes(mesSeleccionado); 
+      actualizarSaldoGlobal();
     });
   };
 
@@ -110,6 +121,7 @@ export default function FinanzasScreen({ navigation }) {
         titulo="Mis Finanzas" 
         abrirNotificaciones={() => setNotiVisible(true)}
         abrirConfiguracion={() => setConfigVisible(true)}
+        saldo={saldoActual} // Pasamos el saldo real
       />
 
       <ScrollView contentContainerStyle={estilos.scrollContent} showsVerticalScrollIndicator={false}>

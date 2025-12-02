@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 
-// Controlador (Solo lectura)
-import { obtenerTodasLasTransacciones } from '../controllers/FinanzasController';
+
+import { obtenerTodasLasTransacciones, obtenerSaldoTotal } from '../controllers/FinanzasController';
 
 const color = {
   fondo: "#f1f2f3",
@@ -16,15 +16,14 @@ const color = {
   hoy: "#e8f5e9", 
 };
 
-// --- ENCABEZADO ---
-function Encabezado({ titulo, saldo = 9638.35, moneda = "MXN" }) {
+function Encabezado({ titulo, saldo, moneda = "MXN" }) {
   return (
     <View style={estilos.encabezado}>
       <Text style={estilos.titulo}>{titulo}</Text>
       <View style={estilos.saldoTarjeta}>
         <TouchableOpacity><Text style={{fontSize:24}}>🏦</Text></TouchableOpacity>
         <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={estilos.saldo}>{saldo.toLocaleString("es-MX")}</Text>
+          <Text style={estilos.saldo}>{saldo.toLocaleString("es-MX", {minimumFractionDigits: 2})}</Text>
           <Text style={estilos.moneda}>{moneda}</Text>
         </View>
         <View style={estilos.iconosAccion}>
@@ -48,20 +47,24 @@ export default function CalendarioScreen({ navigation }) {
 
   const [todasTransacciones, setTodasTransacciones] = useState([]);
   const [listaDelDia, setListaDelDia] = useState([]);
+  const [saldoActual, setSaldoActual] = useState(0); // Estado Saldo
   
   const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       cargarDatos();
     }, [])
   );
 
   const cargarDatos = () => {
+    
     obtenerTodasLasTransacciones((datos) => {
       setTodasTransacciones(datos);
       filtrarPorDia(datos, diaSeleccionado, mes, anio);
     });
+    
+    obtenerSaldoTotal((total) => setSaldoActual(total));
   };
 
   const filtrarPorDia = (datos, dia, mesActual, anioActual) => {
@@ -97,7 +100,7 @@ export default function CalendarioScreen({ navigation }) {
     <View style={estilos.pantalla}>
       <StatusBar barStyle="light-content" backgroundColor={color.verde} />
       
-      <Encabezado titulo="Agenda Financiera" />
+      <Encabezado titulo="Agenda Financiera" saldo={saldoActual} />
 
       <ScrollView contentContainerStyle={estilos.scrollContent} showsVerticalScrollIndicator={false}>
         
@@ -140,7 +143,7 @@ export default function CalendarioScreen({ navigation }) {
           </View>
         </View>
 
-        {/* LISTA DE MOVIMIENTOS */}
+        {/* LISTA MOVIMIENTOS */}
         <Text style={estilos.subtitulo}>
             Movimientos del {diaSeleccionado} de {nombresMeses[mes]}
         </Text>
@@ -182,7 +185,6 @@ export default function CalendarioScreen({ navigation }) {
         )}
 
       </ScrollView>
-
     </View>
   );
 }

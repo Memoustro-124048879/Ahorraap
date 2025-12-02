@@ -11,25 +11,9 @@ export const initDB = async () => {
     await db.execAsync(`
       PRAGMA journal_mode = WAL;
       
-      -- Tabla Transacciones
-      CREATE TABLE IF NOT EXISTS transacciones (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        titulo TEXT,
-        monto REAL,
-        tipo TEXT,
-        fecha TEXT,
-        categoria TEXT,
-        descripcion TEXT
-      );
-
-      -- Tabla Presupuestos
-      CREATE TABLE IF NOT EXISTS presupuestos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        categoria TEXT,
-        monto REAL
-      );
-
-      -- NUEVA TABLA: Usuarios
+      -- ⚠️ ESTA LÍNEA BORRA LA TABLA VIEJA PARA ACTUALIZARLA
+      DROP TABLE IF EXISTS presupuestos; 
+      
       CREATE TABLE IF NOT EXISTS usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nombre TEXT,
@@ -37,8 +21,30 @@ export const initDB = async () => {
         password TEXT,
         telefono TEXT
       );
+
+      CREATE TABLE IF NOT EXISTS transacciones (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        titulo TEXT,
+        monto REAL,
+        tipo TEXT,
+        fecha TEXT,
+        categoria TEXT,
+        descripcion TEXT,
+        FOREIGN KEY(user_id) REFERENCES usuarios(id)
+      );
+
+      -- TABLA ACTUALIZADA CON FECHA
+      CREATE TABLE IF NOT EXISTS presupuestos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        categoria TEXT,
+        monto REAL,
+        fecha TEXT, -- <--- NUEVO CAMPO
+        FOREIGN KEY(user_id) REFERENCES usuarios(id)
+      );
     `);
-    console.log('Tablas (incluida Usuarios) inicializadas ✅');
+    console.log('Base de Datos Actualizada (Presupuestos con Fecha) ✅');
   } catch (error) {
     console.log('Error inicializando DB:', error);
   }

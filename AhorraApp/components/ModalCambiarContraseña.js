@@ -34,7 +34,7 @@ export default function ModalCambiarContrasena({ visible, onClose }) {
         {
           text: "OK", 
           onPress: () => {
-            // Limpiamos los campos y cerramos
+            
             setActual("");
             setNueva("");
             setConfirmar("");

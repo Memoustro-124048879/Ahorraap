@@ -11,12 +11,12 @@ const color = {
 export default function ModalFaceID({ visible, onClose }) {
   const [faceID, setFaceID] = useState(true);
 
-  // Función para guardar y cerrar
+  
   const handleGuardar = () => {
-    // Aquí iría la lógica real para activar biometría en el dispositivo
+    
     const estado = faceID ? "activada" : "desactivada";
     Alert.alert("Seguridad", `Autenticación biométrica ${estado}.`);
-    onClose(); // <--- ESTO CIERRA EL MODAL
+    onClose(); 
   };
 
   return (
@@ -35,7 +35,7 @@ export default function ModalFaceID({ visible, onClose }) {
             <View style={estilos.row}>
               <Text style={estilos.label}>Activar autenticación biométrica</Text>
               
-              {/* Switch con colores de marca */}
+             
               <Switch 
                 trackColor={{ false: "#767577", true: "#a5d6b6" }}
                 thumbColor={faceID ? color.verde : "#f4f3f4"}
@@ -88,12 +88,12 @@ const estilos = StyleSheet.create({
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center", // Centrado verticalmente con el switch
+    alignItems: "center", 
   },
   label: {
     fontSize: 16,
     color: color.texto,
-    flex: 1, // Para que el texto ocupe espacio y no se amontone con el switch
+    flex: 1, 
     marginRight: 10
   },
   botonModal: {

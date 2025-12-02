@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, StatusBar, Alert } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import { useFocusEffect } from '@react-navigation/native'; 
 
 import ModalDatos from '../components/ModalDatos';
 import ModalMisTarjetas from '../components/ModalMisTarjetas';
@@ -17,6 +19,8 @@ const color = {
   texto: "#101010",
   textoSuave: "#666",
   rojo: "#e74c3c", 
+  azulSuave: "#e3f2fd", 
+  azulTexto: "#1565c0" 
 };
 
 const OpcionMenu = ({ icono, texto, accion, esRojo = false }) => (
@@ -33,7 +37,6 @@ const OpcionMenu = ({ icono, texto, accion, esRojo = false }) => (
 
 export default function PerfilScreen({ navigation }) {
   
-  // Estados de Modales
   const [modalDatosVisible, setModalDatosVisible] = useState(false);
   const [modalTarjetasVisible, setModalTarjetasVisible] = useState(false);
   const [modalExtractosVisible, setModalExtractosVisible] = useState(false);
@@ -41,18 +44,51 @@ export default function PerfilScreen({ navigation }) {
   const [modalNotifVisible, setModalNotifVisible] = useState(false);
   const [modalFaceVisible, setModalFaceVisible] = useState(false);
 
-  // --- 1. AQUÍ ESTÁN TUS DATOS ---
   const [userData, setUserData] = useState({
-    nombre: "Tony Developer",
-    email: "tony@ahorraapp.com",
-    telefono: "+52 55 1234 5678",
-    idUsuario: "#8839201"
+    nombre: "Cargando...",
+    email: "...",
+    telefono: "",
+    idUsuario: ""
   });
+
+  
+  useFocusEffect(
+    useCallback(() => {
+      const cargarSesion = async () => {
+        try {
+          const session = await AsyncStorage.getItem('userSession');
+          if (session) {
+            const user = JSON.parse(session);
+            setUserData({
+              nombre: user.nombre || "Usuario",
+              email: user.email || "Correo no disponible",
+              telefono: user.telefono || 'Sin teléfono',
+              idUsuario: `#ID-${user.id}`
+            });
+          }
+        } catch (e) {
+          console.log("Error cargando perfil", e);
+        }
+      };
+      cargarSesion();
+    }, [])
+  );
+
+  
+  const getIniciales = (nombre) => {
+    if(!nombre || nombre === "Cargando...") return "?";
+    const nombres = nombre.split(' ');
+    if (nombres.length >= 2) {
+      return `${nombres[0][0]}${nombres[1][0]}`.toUpperCase();
+    }
+    return nombre[0].toUpperCase();
+  };
 
   const guardarDatos = (nuevosDatos) => {
     setUserData(nuevosDatos);
     setModalDatosVisible(false);
-    Alert.alert("Éxito", "Tus datos han sido actualizados correctamente.");
+    
+    Alert.alert("Éxito", "Datos actualizados localmente.");
   };
 
   const handleLogOut = () => {
@@ -61,7 +97,14 @@ export default function PerfilScreen({ navigation }) {
       "¿Estás seguro que deseas salir?",
       [
         { text: "Cancelar", style: "cancel" },
-        { text: "Salir", style: "destructive", onPress: () => navigation.replace("Login") }
+        { 
+          text: "Salir", 
+          style: "destructive",
+          onPress: async () => {
+            await AsyncStorage.removeItem('userSession'); 
+            navigation.replace("Login");
+          }
+        }
       ]
     );
   };
@@ -73,14 +116,13 @@ export default function PerfilScreen({ navigation }) {
       <ScrollView contentContainerStyle={estilos.scrollContent} showsVerticalScrollIndicator={false}>
         
         <View style={estilos.cardUsuario}>
-          <View style={estilos.avatarContainer}>
-            <Image source={avatarTony} style={estilos.avatar} />
-            <View style={estilos.badgeEdit}>
-              <Ionicons name="camera" size={14} color="white" />
-            </View>
+          <View style={estilos.inicialesContainer}>
+            <Text style={estilos.textoIniciales}>{getIniciales(userData.nombre)}</Text>
           </View>
+          
           <Text style={estilos.nombreUsuario}>{userData.nombre}</Text>
           <Text style={estilos.emailUsuario}>{userData.email}</Text>
+          
           <View style={estilos.badgePro}>
             <MaterialIcons name="verified" size={16} color="white" />
             <Text style={estilos.textoPro}>Cuenta Verificada</Text>
@@ -105,20 +147,12 @@ export default function PerfilScreen({ navigation }) {
           <OpcionMenu icono="log-out-outline" texto="Cerrar Sesión" accion={handleLogOut} esRojo={true} />
         </View>
 
-        <Text style={estilos.versionApp}>AhorraApp v1.0.5</Text>
+        <Text style={estilos.versionApp}>AhorraApp v1.0.8</Text>
 
       </ScrollView>
 
-      {/* --- 2. AQUÍ PASAMOS LOS DATOS AL MODAL --- */}
-      {/* Asegúrate de que esta línea esté tal cual */}
-      <ModalDatos 
-        visible={modalDatosVisible} 
-        onClose={() => setModalDatosVisible(false)}
-        datosActuales={userData} // <--- ¡ESTO ES LO IMPORTANTE!
-        onGuardar={guardarDatos}
-      />
-
-      {/* Otros modales */}
+      {/* MODALES */}
+      <ModalDatos visible={modalDatosVisible} onClose={() => setModalDatosVisible(false)} datosActuales={userData} onGuardar={guardarDatos} />
       <ModalMisTarjetas visible={modalTarjetasVisible} onClose={() => setModalTarjetasVisible(false)} />
       <ModalExtractos visible={modalExtractosVisible} onClose={() => setModalExtractosVisible(false)} />
       <ModalCambiarContrasena visible={modalPassVisible} onClose={() => setModalPassVisible(false)} />
@@ -132,10 +166,9 @@ export default function PerfilScreen({ navigation }) {
 const estilos = StyleSheet.create({
   pantalla: { flex: 1, backgroundColor: color.fondo },
   scrollContent: { paddingTop: 60, paddingHorizontal: 20, paddingBottom: 100 },
-  cardUsuario: { backgroundColor: 'white', borderRadius: 20, padding: 25, alignItems: 'center', elevation: 2, shadowColor: "#000", shadowOpacity: 0.08, shadowOffset: { width: 0, height: 2 }, marginBottom: 30 },
-  avatarContainer: { position: 'relative', marginBottom: 15 },
-  avatar: { width: 100, height: 100, borderRadius: 50 },
-  badgeEdit: { position: 'absolute', bottom: 0, right: 0, backgroundColor: color.verde, width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: 'white' },
+  cardUsuario: { backgroundColor: 'white', borderRadius: 20, padding: 25, alignItems: 'center', elevation: 2, shadowColor: "#000", shadowOpacity: 0.05, shadowOffset: { width: 0, height: 2 }, marginBottom: 30 },
+  inicialesContainer: { width: 80, height: 80, borderRadius: 40, backgroundColor: color.azulSuave, alignItems: 'center', justifyContent: 'center', marginBottom: 15, borderWidth: 1, borderColor: '#e1f5fe' },
+  textoIniciales: { fontSize: 28, fontWeight: 'bold', color: color.azulTexto, letterSpacing: 1 },
   nombreUsuario: { fontSize: 22, fontWeight: 'bold', color: color.texto, marginBottom: 5 },
   emailUsuario: { fontSize: 15, color: color.textoSuave, marginBottom: 15 },
   badgePro: { backgroundColor: color.verde, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, gap: 6 },
