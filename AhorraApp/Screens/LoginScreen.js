@@ -3,16 +3,16 @@ import {
   View,
   Text,
   StyleSheet,
-  
+  SafeAreaView,
   TouchableOpacity,
   Image,
   TextInput,
   Alert,
   Modal, 
-  Platform,
   StatusBar
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { loginUsuario } from '../controllers/UserController'; // <--- IMPORTAMOS EL CONTROLADOR
 
 const logoAhorrapp = require('../assets/full.jpg');
 
@@ -25,34 +25,29 @@ export default function LoginScreen({ navigation }) {
   
   const verdeOficial = '#2DA458'; 
 
- 
-  const handleLogin = () => {
+  // --- LÓGICA DE LOGIN REAL ---
+  const handleLogin = async () => {
     
-    if (email.trim() === '' && password.trim() === '') {
+    // 1. Validaciones básicas visuales
+    if (email.trim() === '' || password.trim() === '') {
       Alert.alert('Campos vacíos', 'Por favor ingresa tu correo y contraseña.');
       return; 
     }
- 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-      Alert.alert('Correo inválido', 'Ingresa un correo válido (ej: tony@gmail.com).');
-      return; 
-    }
-    
-    if (password.trim() === '') {
-      Alert.alert('Contraseña requerida', 'Por favor escribe tu contraseña.');
-      return; 
-    }
 
-    
-    console.log('Login correcto:', email);
-    navigation.replace('MainApp'); 
+    // 2. CONSULTAR BASE DE DATOS
+    const usuarioEncontrado = await loginUsuario(email, password);
+
+    if (usuarioEncontrado) {
+      console.log('Login exitoso:', usuarioEncontrado.nombre);
+      navigation.replace('MainApp'); 
+    } else {
+      Alert.alert("Error de acceso", "Correo o contraseña incorrectos.");
+    }
   };
 
   const handleRecuperar = () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRecuperacion || !emailRegex.test(emailRecuperacion)) {
-      Alert.alert('Error', 'Ingresa un correo válido para enviarte el código.');
+    if (!emailRecuperacion.includes('@')) {
+      Alert.alert('Error', 'Ingresa un correo válido.');
       return;
     }
     setModalVisible(false);
@@ -65,7 +60,6 @@ export default function LoginScreen({ navigation }) {
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
       <View style={styles.content}>
-        
         <Image source={logoAhorrapp} style={styles.logo} />
 
         <View style={styles.inputContainer}>
@@ -109,10 +103,9 @@ export default function LoginScreen({ navigation }) {
             ¿No tienes cuenta? <Text style={{ color: verdeOficial }}>Regístrate aquí</Text>
           </Text>
         </TouchableOpacity>
-
       </View>
 
-     
+      {/* MODAL RECUPERACIÓN */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -148,118 +141,26 @@ export default function LoginScreen({ navigation }) {
           </View>
         </View>
       </Modal>
-
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF',
-  },
-  content: {
-    flex: 1,
-    padding: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logo: {
-    width: 200,
-    height: 200,
-    resizeMode: 'contain',
-    marginBottom: 40,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    height: 55,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 30,
-    paddingHorizontal: 20,
-    marginBottom: 15,
-  },
-  icon: {
-    fontSize: 20,
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    height: '100%',
-    fontSize: 16,
-    color: '#333',
-  },
-  btn: {
-    width: '100%',
-    paddingVertical: 15,
-    borderRadius: 30,
-    alignItems: 'center',
-    marginTop: 10,
-    elevation: 3, 
-    shadowColor: '#000', 
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-  },
-  btnText: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  link: {
-    color: '#666',
-    marginTop: 20,
-    fontSize: 15,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalBox: {
-    width: '85%',
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 25,
-    alignItems: 'center',
-    elevation: 10,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
-  },
-  modalDesc: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 15,
-  },
-  modalInput: {
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 20,
-    fontSize: 16,
-  },
-  modalBtns: {
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  modalBtn: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  modalBtnText: {
-    color: 'white',
-    fontWeight: 'bold',
-  }
+  container: { flex: 1, backgroundColor: '#FFF' },
+  content: { flex: 1, padding: 25, justifyContent: 'center', alignItems: 'center' },
+  logo: { width: 200, height: 200, resizeMode: 'contain', marginBottom: 40 },
+  inputContainer: { flexDirection: 'row', alignItems: 'center', width: '100%', height: 55, backgroundColor: '#F5F5F5', borderRadius: 30, paddingHorizontal: 20, marginBottom: 15 },
+  icon: { fontSize: 20, marginRight: 10 },
+  input: { flex: 1, height: '100%', fontSize: 16, color: '#333' },
+  btn: { width: '100%', paddingVertical: 15, borderRadius: 30, alignItems: 'center', marginTop: 10, elevation: 3 },
+  btnText: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
+  link: { color: '#666', marginTop: 20, fontSize: 15 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  modalBox: { width: '85%', backgroundColor: 'white', borderRadius: 20, padding: 25, alignItems: 'center', elevation: 10 },
+  modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 10, color: '#333' },
+  modalDesc: { fontSize: 16, color: '#666', marginBottom: 15 },
+  modalInput: { width: '100%', borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 10, marginBottom: 20, fontSize: 16 },
+  modalBtns: { flexDirection: 'row', width: '100%', justifyContent: 'space-between', gap: 10 },
+  modalBtn: { flex: 1, padding: 12, borderRadius: 10, alignItems: 'center' },
+  modalBtnText: { color: 'white', fontWeight: 'bold' }
 });

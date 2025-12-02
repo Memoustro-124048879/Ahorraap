@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from '@react-navigation/native';
 
 import ModalConfiguracion from "../components/ModalConfiguracion";
 import ModalNotificacionesGeneral from "../components/ModalNotificacionesGeneral";
 
-// Ruta al controlador
 import { obtenerBalancePorMes, insertarDatosPrueba } from "../controllers/FinanzasController";
 
 const color = {
@@ -19,7 +19,6 @@ const color = {
   barraFondo: "#e0e0e0",
 };
 
-// --- MAPA COMPLETO DE MESES ---
 const mapaMeses = {
   'Enero': '01', 'Febrero': '02', 'Marzo': '03', 'Abril': '04',
   'Mayo': '05', 'Junio': '06', 'Julio': '07', 'Agosto': '08',
@@ -50,7 +49,7 @@ function Encabezado({ titulo, abrirNotificaciones, abrirConfiguracion, saldo = 9
 }
 
 const BarraProgreso = ({ label, monto, total, colorBarra, icono }) => {
-  const porcentaje = total > 0 ? Math.min((monto / total) * 100, 100) : 0;
+  const porcentaje = (total > 0 && monto > 0) ? Math.min((monto / total) * 100, 100) : 0;
   return (
     <View style={estilos.bloqueBarra}>
       <View style={estilos.infoBarra}>
@@ -74,13 +73,15 @@ export default function FinanzasScreen({ navigation }) {
 
   const [mesSeleccionado, setMesSeleccionado] = useState('Enero');
   const meses = Object.keys(mapaMeses);
-
   const [dataActual, setDataActual] = useState({ ingresos: 0, gastos: 0, meta: 15000 });
   const [cargando, setCargando] = useState(false);
 
-  useEffect(() => {
-    cargarDatosDelMes(mesSeleccionado);
-  }, [mesSeleccionado]);
+  // Recargar al entrar o cambiar mes
+  useFocusEffect(
+    useCallback(() => {
+      cargarDatosDelMes(mesSeleccionado);
+    }, [mesSeleccionado])
+  );
 
   const cargarDatosDelMes = (mes) => {
     setCargando(true);
@@ -94,7 +95,7 @@ export default function FinanzasScreen({ navigation }) {
 
   const llenarBaseDatos = () => {
     insertarDatosPrueba(() => {
-      alert("Base de datos actualizada correctamente.");
+      alert("Base de datos reiniciada y cargada.");
       cargarDatosDelMes(mesSeleccionado); 
     });
   };
@@ -105,7 +106,6 @@ export default function FinanzasScreen({ navigation }) {
     <View style={estilos.pantalla}>
       <StatusBar barStyle="light-content" backgroundColor={color.verde} />
       
-      {/* TÍTULO LIMPIO */}
       <Encabezado 
         titulo="Mis Finanzas" 
         abrirNotificaciones={() => setNotiVisible(true)}
@@ -142,13 +142,11 @@ export default function FinanzasScreen({ navigation }) {
 
         <View style={estilos.cardDetalle}>
             <Text style={estilos.subtitulo}>Desglose General</Text>
-            
             <BarraProgreso label="Ingresos" monto={dataActual.ingresos} total={dataActual.meta} colorBarra={color.verde} icono="arrow-up-circle-outline" />
             <BarraProgreso label="Gastos" monto={dataActual.gastos} total={dataActual.ingresos} colorBarra={color.rojo} icono="arrow-down-circle-outline" />
             <BarraProgreso label="Ahorro" monto={balance} total={dataActual.ingresos} colorBarra={color.azul} icono="wallet-outline" />
         </View>
 
-        {/* BOTÓN TEXTO LIMPIO */}
         <TouchableOpacity style={estilos.botonReporte} onPress={llenarBaseDatos}>
             <Text style={estilos.textoBotonReporte}>Cargar Datos</Text>
             <Ionicons name="refresh" size={20} color={color.verde} />

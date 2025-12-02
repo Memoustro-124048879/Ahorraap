@@ -3,9 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar } from 
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 
-// Controlador y Modal
+// Controlador (Solo lectura)
 import { obtenerTodasLasTransacciones } from '../controllers/FinanzasController';
-import ModalNuevaTransaccion from '../components/ModalNuevaTransaccion'; // <--- IMPORTADO
 
 const color = {
   fondo: "#f1f2f3",
@@ -50,9 +49,6 @@ export default function CalendarioScreen({ navigation }) {
   const [todasTransacciones, setTodasTransacciones] = useState([]);
   const [listaDelDia, setListaDelDia] = useState([]);
   
-  // Estado para el modal de agregar
-  const [modalVisible, setModalVisible] = useState(false);
-
   const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
   useFocusEffect(
@@ -187,26 +183,6 @@ export default function CalendarioScreen({ navigation }) {
 
       </ScrollView>
 
-      {/* FAB - Abre el Modal de Nueva Transacción */}
-      <TouchableOpacity 
-        style={estilos.fabAgregar} 
-        onPress={() => setModalVisible(true)}
-      >
-        <Ionicons name="add" size={30} color="white" />
-      </TouchableOpacity>
-
-      {/* Modal Conectado */}
-      <ModalNuevaTransaccion 
-        visible={modalVisible} 
-        onClose={() => setModalVisible(false)}
-        onSave={(datos) => {
-          // Aquí podríamos guardar en BD
-          console.log("Guardar desde calendario:", datos);
-          // Recargamos datos para ver el cambio
-          cargarDatos(); 
-        }}
-      />
-
     </View>
   );
 }
@@ -239,5 +215,4 @@ const estilos = StyleSheet.create({
   tituloEvento: { fontSize: 16, fontWeight: '600', color: color.texto },
   categoriaEvento: { fontSize: 12, color: color.textoSuave },
   montoEvento: { fontSize: 16, fontWeight: 'bold' },
-  fabAgregar: { position: 'absolute', bottom: 90, right: 20, width: 50, height: 50, borderRadius: 25, backgroundColor: color.verde, justifyContent: 'center', alignItems: 'center', elevation: 5 }
 });
