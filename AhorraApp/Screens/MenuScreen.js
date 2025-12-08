@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
+import Colors from '../constants/colors';
 
 import UnoScreen from './Unoscreen';
 import Dosscreen from './Dosscreen';
@@ -21,14 +22,14 @@ export default function MenuScreen() {
   switch (screen) {
     case 'uno':
       return <UnoScreen />;
-    case 'dos':     
-        return <Dosscreen />;
+    case 'dos':
+      return <Dosscreen />;
     case 'tres':
       return <Tresscreen />;
     case 'cuatro':
       return <Cuatroscreen />;
-    case 'cinco':   
-        return <Cincoscreen />;
+    case 'cinco':
+      return <Cincoscreen />;
     case 'seis':
       return <Seisscreen />;
     case 'siete':
@@ -48,17 +49,17 @@ export default function MenuScreen() {
         <View style={styles.botonesContainer}>
           <Text style={styles.menuTitle}>Menú de Screens</Text>
           <Button title="Inicio" onPress={() => setScreen('uno')} />
-            <Button title="Login" onPress={() => setScreen('dos')} />
-            <Button title="Registro" onPress={() => setScreen('tres')} />
-            <Button title="Transacciones" onPress={() => setScreen('cuatro')} />
-            <Button title="Graficas" onPress={() => setScreen('cinco')} />
-            <Button title="Presupuestos" onPress={() => setScreen('seis')} />
-            <Button title="Centro de notificaciones" onPress={() => setScreen('siete')} />
-            <Button title="Registro de transferencias" onPress={() => setScreen('ocho')} />
-            <Button title="Nueva transferencia" onPress={() => setScreen('nueve')} />
-            <Button title="Agregar presupuesto" onPress={() => setScreen('diez')} />
-            <Button title="Editado de las transferencias" onPress={() => setScreen('once')} />
-            <Button title="Listado de las transferencias" onPress={() => setScreen('doce')} />        
+          <Button title="Login" onPress={() => setScreen('dos')} />
+          <Button title="Registro" onPress={() => setScreen('tres')} />
+          <Button title="Transacciones" onPress={() => setScreen('cuatro')} />
+          <Button title="Graficas" onPress={() => setScreen('cinco')} />
+          <Button title="Presupuestos" onPress={() => setScreen('seis')} />
+          <Button title="Centro de notificaciones" onPress={() => setScreen('siete')} />
+          <Button title="Registro de transferencias" onPress={() => setScreen('ocho')} />
+          <Button title="Nueva transferencia" onPress={() => setScreen('nueve')} />
+          <Button title="Agregar presupuesto" onPress={() => setScreen('diez')} />
+          <Button title="Editado de las transferencias" onPress={() => setScreen('once')} />
+          <Button title="Listado de las transferencias" onPress={() => setScreen('doce')} />
         </View>
       );
   }
@@ -74,15 +75,15 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     marginRight: 8,
     borderRadius: 8,
-    borderColor: '#7bd1ff',
+    borderColor: Colors.cianAccion,
     borderWidth: 2,
-    backgroundColor: '#36434f',
+    backgroundColor: Colors.grisOscuro,
     gap: 8,
   },
   menuTitle: {
     fontSize: 15,
     fontWeight: 'bold',
     marginBottom: 15,
-    color: '#7bd1ff',
+    color: Colors.cianAccion,
   },
 });
