@@ -14,17 +14,25 @@ import { AuthController } from '../Controllers/AuthController';
 import { useUser } from '../Contexts/UserContext';
 import Colors from '../constants/colors';
 
+// Importamos el logo de la aplicación
 const logoAhorrapp = require('../assets/ahorra_app_logo.png');
 
+// Pantalla de Inicio de Sesión
 const LoginScreen = ({ navigation }) => {
+  // Estado local para los campos de texto
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // Accedemos a la función 'setUsuario' del contexto global para guardar al usuario cuando inicie sesión
   const { setUsuario } = useUser();
 
+  // Función principal para procesar el ingreso
   const handleLogin = async () => {
+    // Quitamos espacios en blanco accidentales
     const emailTrimmed = email.trim();
     const passwordTrimmed = password.trim();
 
+    // Validamos que los campos no estén vacíos
     if (emailTrimmed === '') {
       Alert.alert('Error de ingreso', 'Por favor, ingresa tu correo.');
       return;
@@ -36,24 +44,32 @@ const LoginScreen = ({ navigation }) => {
     }
 
     try {
+      // Intentamos hacer login con el Controlador
       const usuario = await AuthController.login(emailTrimmed, passwordTrimmed);
-      setUsuario(usuario); // Guardar en contexto global
+
+      // Si funciona, guardamos el usuario en el estado global de la App
+      setUsuario(usuario);
       console.log('Usuario logueado:', usuario);
+
+      // Navegamos a la pantalla principal (Dashboard)
       navigation.navigate('MainApp', { screen: 'Dashboard' });
     } catch (error) {
+      // Si falla (contraseña incorrecta, usuario no existe), mostramos el error
       Alert.alert('Error de ingreso', error.message);
     }
   };
 
+  // Estados para el modal de recuperación de contraseña
   const [modalVisible, setModalVisible] = useState(false);
   const [emailRecuperacion, setEmailRecuperacion] = useState('');
 
-  // Colores usando la nueva paleta
+  // Definimos colores locales basados en nuestra paleta global para mantener consistencia
   const colorBotonAccion = Colors.cianAccion;
   const colorGrisInput = Colors.fondoSecundario;
   const colorGrisTexto = Colors.grisTexto;
   const colorLink = Colors.cianAccion;
 
+  // Función simulada para recuperar contraseña
   const handleEnviarRecuperacion = async () => {
     if (!emailRecuperacion) {
       Alert.alert('Error', 'Por favor, ingresa un correo válido.');
@@ -62,8 +78,8 @@ const LoginScreen = ({ navigation }) => {
 
     try {
       await AuthController.recuperarPassword(emailRecuperacion.trim());
-      setModalVisible(false);
-      setEmailRecuperacion('');
+      setModalVisible(false); // Cerramos el modal
+      setEmailRecuperacion(''); // Limpiamos el campo
       Alert.alert(
         '¡Revisa tu correo!',
         `Se han enviado las instrucciones de recuperación a ${emailRecuperacion}.`
@@ -78,8 +94,10 @@ const LoginScreen = ({ navigation }) => {
 
       <View style={styles.mainContainer}>
 
+        {/* Logo Principal */}
         <Image source={logoAhorrapp} style={styles.logoImage} />
 
+        {/* Campo de Correo */}
         <View style={[styles.inputContainer, { backgroundColor: colorGrisInput }]}>
           <Text style={styles.icon}>👤</Text>
           <TextInput
@@ -89,10 +107,11 @@ const LoginScreen = ({ navigation }) => {
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
-            autoCapitalize="none"
+            autoCapitalize="none" // Importante: emails no llevan mayúsculas
           />
         </View>
 
+        {/* Campo de Contraseña */}
         <View style={[styles.inputContainer, { backgroundColor: colorGrisInput }]}>
           <Text style={styles.icon}>🔒</Text>
           <TextInput
@@ -101,10 +120,11 @@ const LoginScreen = ({ navigation }) => {
             placeholderTextColor={colorGrisTexto}
             value={password}
             onChangeText={setPassword}
-            secureTextEntry
+            secureTextEntry // Oculta los caracteres
           />
         </View>
 
+        {/* Botón de Ingresar */}
         <TouchableOpacity
           style={[styles.loginButton, { backgroundColor: colorBotonAccion }]}
           onPress={handleLogin}
@@ -112,6 +132,7 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.loginButtonText}>Ingresar</Text>
         </TouchableOpacity>
 
+        {/* Enlace Olvidé contraseña */}
         <TouchableOpacity
           onPress={() => setModalVisible(true)}
         >
@@ -120,6 +141,7 @@ const LoginScreen = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
 
+        {/* Enlace Registro */}
         <TouchableOpacity onPress={() => navigation.navigate('RegistroScreen')}>
           <Text style={[styles.linkText, { color: colorLink, marginTop: 15 }]}>
             ¿No tienes una cuenta? Regístrate aquí
@@ -128,6 +150,7 @@ const LoginScreen = ({ navigation }) => {
 
       </View>
 
+      {/* Modal de Recuperación */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -136,9 +159,7 @@ const LoginScreen = ({ navigation }) => {
           setModalVisible(false);
         }}
       >
-
         <View style={styles.modalContainer}>
-
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Recuperar Contraseña</Text>
             <Text style={styles.modalSubtitle}>
@@ -154,7 +175,6 @@ const LoginScreen = ({ navigation }) => {
               keyboardType="email-address"
               autoCapitalize="none"
             />
-
 
             <View style={styles.modalButtonContainer}>
               <TouchableOpacity
@@ -233,11 +253,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 
+  // Estilos del Modal
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.overlay,
+    backgroundColor: Colors.overlay, // Fondo semitransparente
   },
   modalContent: {
     width: '85%',
@@ -245,11 +266,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 25,
     alignItems: 'center',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    elevation: 10, // Sombra en Android
   },
   modalTitle: {
     fontSize: 20,

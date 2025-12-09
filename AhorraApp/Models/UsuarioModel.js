@@ -1,7 +1,8 @@
 import { Platform } from 'react-native';
 import db from '../Database/Database';
 
-// Helper para manejar queries en web (con verificación de window)
+// Helper para manejar persistencia en Web usando localStorage
+// Esto permite que la app funcione en el navegador simulando la base de datos
 const webQuery = {
     getData() {
         if (typeof window === 'undefined' || !window.localStorage) {
@@ -10,6 +11,7 @@ const webQuery = {
 
         try {
             const data = window.localStorage.getItem('lana_app_data');
+            // Si existen datos previos los cargamos, si no, inicializamos vacío
             return data ? JSON.parse(data) : { usuarios: [], transacciones: [], presupuestos: [] };
         } catch {
             return { usuarios: [], transacciones: [], presupuestos: [] };
@@ -23,16 +25,22 @@ const webQuery = {
     }
 };
 
+// Modelo de Usuario: Gestiona todas las operaciones de datos relacionadas con usuarios
 export const UsuarioModel = {
+
+    // Crea un nuevo registro de usuario en la base de datos
     crear: async (email, password, nombre, telefono) => {
         try {
+            // Lógica específica para WEB
             if (Platform.OS === 'web') {
                 const data = webQuery.getData();
                 const id = data.usuarios.length + 1;
+                // Agregamos el nuevo usuario al array en memoria
                 data.usuarios.push({ id, email, password, nombre, telefono, foto_perfil: null });
-                webQuery.setData(data);
+                webQuery.setData(data); // Guardamos en localStorage
                 return id;
             } else {
+                // Lógica específica para CELULAR (SQLite)
                 const result = await db.runAsync(
                     'INSERT INTO usuarios (email, password, nombre, telefono) VALUES (?, ?, ?, ?)',
                     [email, password, nombre, telefono]
@@ -45,6 +53,7 @@ export const UsuarioModel = {
         }
     },
 
+    // Busca un usuario por su correo electrónico (útil para Login)
     buscarPorEmail: async (email) => {
         try {
             if (Platform.OS === 'web') {
@@ -64,6 +73,7 @@ export const UsuarioModel = {
         }
     },
 
+    // Busca un usuario por su ID único
     buscarPorId: async (id) => {
         try {
             if (Platform.OS === 'web') {
@@ -83,6 +93,7 @@ export const UsuarioModel = {
         }
     },
 
+    // Actualiza la información básica del perfil
     actualizarPerfil: async (id, nombre, email, telefono) => {
         try {
             if (Platform.OS === 'web') {
@@ -101,7 +112,7 @@ export const UsuarioModel = {
                     'UPDATE usuarios SET nombre = ?, email = ?, telefono = ? WHERE id = ?',
                     [nombre, email, telefono, id]
                 );
-                return { id, nombre, email, telefono }; // Retornar datos actualizados (parcialmente)
+                return { id, nombre, email, telefono };
             }
         } catch (error) {
             console.error('Error al actualizar perfil:', error);
@@ -109,6 +120,7 @@ export const UsuarioModel = {
         }
     },
 
+    // Actualiza la contraseña del usuario
     actualizarPassword: async (id, newPassword) => {
         try {
             if (Platform.OS === 'web') {
@@ -133,6 +145,7 @@ export const UsuarioModel = {
         }
     },
 
+    // Actualiza la foto de perfil (guarda la URI de la imagen)
     actualizarFoto: async (id, fotoUri) => {
         try {
             if (Platform.OS === 'web') {

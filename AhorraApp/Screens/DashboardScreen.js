@@ -15,32 +15,43 @@ import { useUser } from '../Contexts/UserContext';
 import { TransaccionController } from '../Controllers/TransaccionController';
 import Colors from '../constants/colors';
 
+// Pantalla de Dashboard: Es el "centro de mando" de la aplicación.
+// Muestra el resumen (balance), accesos rápidos y consejos.
 export default function DashboardScreen({ navigation }) {
+  // Obtenemos al usuario actual
   const { usuario } = useUser();
+
+  // Estado para guardar y mostrar el balance (Ingresos, Gastos, Total)
   const [balance, setBalance] = useState({ ingresos: 0, gastos: 0, total: 0 });
+
+  // Estado para controlar la animación de "jalar para refrescar"
   const [refreshing, setRefreshing] = useState(false);
 
+  // Función asíncrona para pedir calcular los números financieros
   const cargarDatos = async () => {
     if (usuario) {
       try {
         const datos = await TransaccionController.obtenerResumenFinanciero(usuario.id);
-        setBalance(datos);
+        setBalance(datos); // Actualizamos la pantalla con los nuevos números
       } catch (error) {
         console.error(error);
       }
     }
   };
 
+  // useFocusEffect se asegura de que los datos se actualicen cada vez que volvemos a esta pantalla
+  // (por ejemplo, después de agregar un gasto en otra pantalla).
   useFocusEffect(
     useCallback(() => {
       cargarDatos();
     }, [usuario])
   );
 
+  // Acción manual de refrescar (pull-to-refresh)
   const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await cargarDatos();
-    setRefreshing(false);
+    setRefreshing(true); // Activa el circulito de carga
+    await cargarDatos(); // Espera a que carguen los datos
+    setRefreshing(false); // Apaga el circulito
   }, []);
 
   return (
@@ -48,18 +59,21 @@ export default function DashboardScreen({ navigation }) {
       <ScrollView
         contentContainerStyle={estilos.scrollContent}
         refreshControl={
+          // Control nativo para jalar y actualizar
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {/* Encabezado con Saldo */}
+        {/* Encabezado Superior con el Saldo Total */}
         <View style={estilos.header}>
           <Text style={estilos.saludo}>Hola, {usuario?.nombre || 'Usuario'}</Text>
           <Text style={estilos.tituloSaldo}>Balance Total</Text>
+          {/* .toLocaleString agrega comas y decimales bonitos ($1,234.56) */}
           <Text style={estilos.saldo}>${balance.total.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</Text>
         </View>
 
-        {/* Tarjetas de Resumen */}
+        {/* Tarjetas de Resumen (Ingresos vs Gastos) */}
         <View style={estilos.resumenContainer}>
+          {/* Tarjeta de Ingresos */}
           <View style={[estilos.tarjetaResumen, { borderLeftColor: Colors.moradoSecundario }]}>
             <View style={estilos.iconoContainer}>
               <Ionicons name="arrow-up-circle" size={24} color={Colors.moradoSecundario} />
@@ -72,6 +86,7 @@ export default function DashboardScreen({ navigation }) {
             </View>
           </View>
 
+          {/* Tarjeta de Gastos */}
           <View style={[estilos.tarjetaResumen, { borderLeftColor: Colors.error }]}>
             <View style={estilos.iconoContainer}>
               <Ionicons name="arrow-down-circle" size={24} color={Colors.error} />
@@ -85,7 +100,7 @@ export default function DashboardScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Accesos Rápidos */}
+        {/* Botones de Acceso Rápido a otras pantallas */}
         <Text style={estilos.seccionTitulo}>Accesos Rápidos</Text>
         <View style={estilos.accesosContainer}>
           <TouchableOpacity
@@ -119,7 +134,7 @@ export default function DashboardScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* Banner Promocional o Consejo */}
+        {/* Sección de Consejos / Tips */}
         <View style={estilos.banner}>
           <Ionicons name="bulb-outline" size={30} color="white" style={{ marginRight: 15 }} />
           <View style={{ flex: 1 }}>
@@ -141,16 +156,17 @@ const estilos = StyleSheet.create({
     backgroundColor: Colors.fondoPrincipal,
   },
   scrollContent: {
-    paddingBottom: 30,
+    paddingBottom: 30, // Espacio extra al final para que no se corte
   },
   header: {
     backgroundColor: Colors.moradoPrimario,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: 30,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 30,
+    borderBottomLeftRadius: 30, // Bordes redondeados modernos
     borderBottomRightRadius: 30,
     alignItems: 'center',
+    // Sombras para darle profundidad
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
@@ -178,7 +194,7 @@ const estilos = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    marginTop: -25,
+    marginTop: -25, // Truco visual para que las tarjetas "floten" sobre el header
   },
   tarjetaResumen: {
     backgroundColor: Colors.blanco,
@@ -192,7 +208,7 @@ const estilos = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    borderLeftWidth: 4,
+    borderLeftWidth: 4, // Borde de color a la izquierda
   },
   iconoContainer: {
     marginRight: 10,

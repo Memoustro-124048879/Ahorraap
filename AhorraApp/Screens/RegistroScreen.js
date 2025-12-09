@@ -3,12 +3,15 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, SafeAreaVie
 import { AuthController } from '../Controllers/AuthController';
 import Colors from '../constants/colors';
 
+// Importamos la imagen del logo desde la carpeta de assets
 const AHORRA_APP_LOGO = require('../assets/ahorra_app_logo.png');
 
+// Componente personalizado para los campos de texto del formulario.
+// Recibe las propiedades (props) como placeholder, valor y función de cambio.
 const CustomInput = ({
   placeholder,
-  secureTextEntry,
-  keyboardType = 'default',
+  secureTextEntry, // Para ocultar el texto (contraseñas)
+  keyboardType = 'default', // Tipo de teclado (email, numérico, etc.)
   value,
   onChangeText,
 }) => (
@@ -21,44 +24,56 @@ const CustomInput = ({
       keyboardType={keyboardType}
       value={value}
       onChangeText={onChangeText}
+      // Desactivamos mayúsculas automáticas si es un email
       autoCapitalize={keyboardType === 'email-address' ? 'none' : 'words'}
       autoCorrect={false}
     />
   </View>
 );
 
+// Pantalla de Registro de Usuario
 export default function RegistroScreen({ navigation }) {
+  // Manejo del estado para cada campo del formulario
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState(''); // Opcional
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
 
+  // Función simple para verificar que el email tenga formato correcto (@ y .)
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
+  // Función que se ejecuta al presionar "Registrarse"
   const handleRegister = async () => {
+    // Limpiamos espacios en blanco al inicio y final
     const emailTrimmed = email.trim();
     const passwordTrimmed = password.trim();
     const fullNameTrimmed = fullName.trim();
 
+    // Verificamos que los campos obligatorios no estén vacíos
     if (!fullNameTrimmed || !emailTrimmed || !passwordTrimmed) {
       Alert.alert('Error de registro', 'Por favor, rellena nombre, correo y contraseña.');
       return;
     }
 
+    // Verificamos el formato del correo
     if (!validateEmail(emailTrimmed)) {
       Alert.alert('Error de validación', 'El formato del correo electrónico es incorrecto.');
       return;
     }
 
+    // Intentamos realizar el registro llamando al controlador
     try {
       await AuthController.registrar(emailTrimmed, passwordTrimmed, fullNameTrimmed, phone.trim());
+
       Alert.alert('Registro exitoso', `¡Bienvenido(a) ${fullNameTrimmed}!`, [
+        // Redirigimos al Login tras el éxito
         { text: 'OK', onPress: () => navigation.navigate('LoginScreen') }
       ]);
     } catch (error) {
+      // Mostramos cualquier error que ocurra (ej. correo ya existe)
       Alert.alert('Error', error.message);
     }
   };
@@ -66,6 +81,7 @@ export default function RegistroScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.fullScreenContainer}>
       <View style={styles.formContainer}>
+        {/* Logo y Nombre de la App */}
         <View style={styles.logoTextContainer}>
           <Image
             source={AHORRA_APP_LOGO}
@@ -77,6 +93,8 @@ export default function RegistroScreen({ navigation }) {
             <Text style={styles.AppText}>App</Text>
           </View>
         </View>
+
+        {/* Campos del Formulario */}
         <CustomInput
           placeholder="👤 Nombre completo"
           value={fullName}
@@ -100,6 +118,8 @@ export default function RegistroScreen({ navigation }) {
           value={password}
           onChangeText={setPassword}
         />
+
+        {/* Botones de Acción */}
         <TouchableOpacity
           style={styles.button}
           onPress={handleRegister}

@@ -17,30 +17,34 @@ import { TransaccionController } from '../Controllers/TransaccionController';
 import { useUser } from '../Contexts/UserContext';
 import Colors from '../constants/colors';
 
+// Pantalla principal para visualizar y gestionar transacciones (gastos e ingresos)
 export default function TransaccionesScreen({ navigation }) {
+  // Obtenemos el usuario autenticado desde el contexto global
   const { usuario } = useUser();
-  const [transacciones, setTransacciones] = useState([]);
-  // Estado para edición
-  const [transaccionEditando, setTransaccionEditando] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
 
-  // Formulario
+  // --- Estados de la Pantalla ---
+  const [transacciones, setTransacciones] = useState([]); // Lista de datos
+  const [transaccionEditando, setTransaccionEditando] = useState(null); // Transacción seleccionada para editar
+  const [modalVisible, setModalVisible] = useState(false); // Visibilidad del modal
+
+  // --- Estados del Formulario (Modal) ---
   const [monto, setMonto] = useState('');
-  const [tipo, setTipo] = useState('gasto'); // 'ingreso' o 'gasto'
+  const [tipo, setTipo] = useState('gasto');
   const [categoria, setCategoria] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]); // YYYY-MM-DD
+  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]); // Fecha de hoy por defecto
 
-  // Filtros
+  // --- Estados de Filtros ---
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
   const [filtroCategoria, setFiltroCategoria] = useState('');
   const [filtroFecha, setFiltroFecha] = useState('');
 
+  // Función para obtener las transacciones desde la base de datos
   const cargarTransacciones = async () => {
     if (usuario) {
       try {
         let datos;
-        // Si hay filtros activos, usar el método de filtrado
+        // Aplicamos filtros si el usuario ha escrito algo
         if (filtroCategoria || filtroFecha) {
           datos = await TransaccionController.filtrarTransacciones(usuario.id, filtroCategoria, filtroFecha);
         } else {
@@ -54,12 +58,14 @@ export default function TransaccionesScreen({ navigation }) {
     }
   };
 
+  // Ejecuta la carga de datos cada vez que la pantalla recibe el foco
   useFocusEffect(
     useCallback(() => {
       cargarTransacciones();
-    }, [usuario, filtroCategoria, filtroFecha])
+    }, [usuario, filtroCategoria, filtroFecha]) // Dependencias que disparan la recarga
   );
 
+  // Prepara el modal para editar una transacción existente
   const abrirModalEditar = (item) => {
     setTransaccionEditando(item);
     setMonto(item.monto.toString());
@@ -70,7 +76,9 @@ export default function TransaccionesScreen({ navigation }) {
     setModalVisible(true);
   };
 
+  // Guarda nueva transacción o actualiza una existente
   const handleGuardar = async () => {
+    // Validaciones básicas de campos obligatorios
     if (!monto || !categoria || !fecha) {
       Alert.alert("Error", "Monto, categoría y fecha son obligatorios");
       return;
@@ -78,7 +86,7 @@ export default function TransaccionesScreen({ navigation }) {
 
     try {
       if (transaccionEditando) {
-        // Editar existente
+        // Modo Edición
         await TransaccionController.editarTransaccion(
           transaccionEditando.id,
           monto,
@@ -89,7 +97,7 @@ export default function TransaccionesScreen({ navigation }) {
         );
         Alert.alert("Éxito", "Transacción actualizada correctamente");
       } else {
-        // Crear nueva
+        // Modo Creación
         const resultado = await TransaccionController.agregarTransaccion(
           usuario.id,
           monto,
@@ -100,8 +108,6 @@ export default function TransaccionesScreen({ navigation }) {
         );
 
         if (resultado.alerta) {
-          // Nota: Con el bloqueo estricto, esto quizás ya no se use igual, 
-          // pero mantenemos compatibilidad por si el controlador devuelve alerta en vez de error.
           Alert.alert("Aviso", resultado.alerta);
         } else {
           Alert.alert("Éxito", "Transacción guardada correctamente");
@@ -110,13 +116,14 @@ export default function TransaccionesScreen({ navigation }) {
 
       setModalVisible(false);
       limpiarFormulario();
-      cargarTransacciones();
+      cargarTransacciones(); // Actualizamos la lista
     } catch (error) {
-      // Aquí caerá el error de presupuesto excedido
+      // Capturamos errores como presupuesto excedido
       Alert.alert("Error", error.message);
     }
   };
 
+  // Elimina una transacción solicitando confirmación
   const handleEliminar = (id) => {
     Alert.alert(
       "Eliminar Transacción",
@@ -150,15 +157,14 @@ export default function TransaccionesScreen({ navigation }) {
 
   const toggleFiltros = () => {
     setMostrarFiltros(!mostrarFiltros);
-    if (!mostrarFiltros) {
-      // Al abrir no limpiamos, mantenemos el estado.
-    } else {
-      // Al cerrar limpiamos? Depende UX. Mejor limpiar para resetear lista.
+    if (mostrarFiltros) {
+      // Al ocultar filtros, limpiamos los valores para mostrar todo
       setFiltroCategoria('');
       setFiltroFecha('');
     }
   }
 
+  // Renderiza cada fila de la lista de transacciones
   const renderItem = ({ item }) => {
     if (!item) return null;
 
@@ -192,6 +198,7 @@ export default function TransaccionesScreen({ navigation }) {
 
   return (
     <SafeAreaView style={estilos.pantalla}>
+      {/* Encabezado */}
       <View style={estilos.encabezado}>
         <Text style={estilos.titulo}>Mis Transacciones</Text>
         <View style={{ flexDirection: 'row', gap: 15 }}>
@@ -204,6 +211,7 @@ export default function TransaccionesScreen({ navigation }) {
         </View>
       </View>
 
+      {/* Sección de Filtros */}
       {mostrarFiltros && (
         <View style={estilos.filtroContainer}>
           <Text style={estilos.filtroTitulo}>Filtrar por:</Text>
@@ -224,6 +232,7 @@ export default function TransaccionesScreen({ navigation }) {
         </View>
       )}
 
+      {/* Lista Principal */}
       <View style={estilos.cuerpo}>
         <View style={estilos.cajaBlanca}>
           <FlatList
@@ -239,7 +248,7 @@ export default function TransaccionesScreen({ navigation }) {
         </View>
       </View>
 
-      {/* Modal Nueva Transacción */}
+      {/* Ventana Modal (Crear/Editar) */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -250,6 +259,7 @@ export default function TransaccionesScreen({ navigation }) {
           <View style={estilos.modalContent}>
             <Text style={estilos.modalTitle}>{transaccionEditando ? 'Editar Transacción' : 'Nueva Transacción'}</Text>
 
+            {/* Selector Tipo */}
             <View style={estilos.selectorTipo}>
               <TouchableOpacity
                 style={[estilos.botonTipo, tipo === 'ingreso' && estilos.botonTipoActivoVerde]}
@@ -265,6 +275,7 @@ export default function TransaccionesScreen({ navigation }) {
               </TouchableOpacity>
             </View>
 
+            {/* Inputs del Formulario */}
             <TextInput
               style={estilos.input}
               placeholder="Monto"
@@ -291,6 +302,7 @@ export default function TransaccionesScreen({ navigation }) {
               onChangeText={setDescripcion}
             />
 
+            {/* Botones del Modal */}
             <View style={estilos.modalBotones}>
               <TouchableOpacity
                 style={[estilos.botonModal, { backgroundColor: '#999' }]}
@@ -345,7 +357,6 @@ const estilos = StyleSheet.create({
   vacio: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 50 },
   textoSuave: { color: Colors.grisTexto },
 
-  // Filtros
   filtroContainer: {
     backgroundColor: Colors.moradoPrimario,
     paddingHorizontal: 20,
@@ -366,7 +377,6 @@ const estilos = StyleSheet.create({
     marginBottom: 0,
   },
 
-  // Modal
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -402,7 +412,6 @@ const estilos = StyleSheet.create({
   },
   textoBoton: { color: 'white', fontWeight: 'bold' },
 
-  // Selector Tipo
   selectorTipo: {
     flexDirection: 'row',
     marginBottom: 15,
