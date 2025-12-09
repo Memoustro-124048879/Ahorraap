@@ -38,6 +38,7 @@ export default function RegistroScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [secretWord, setSecretWord] = useState(''); // Estado para la palabra clave
 
   // Función simple para verificar que el email tenga formato correcto (@ y .)
   const validateEmail = (email) => {
@@ -51,10 +52,11 @@ export default function RegistroScreen({ navigation }) {
     const emailTrimmed = email.trim();
     const passwordTrimmed = password.trim();
     const fullNameTrimmed = fullName.trim();
+    const secretWordTrimmed = secretWord.trim();
 
     // Verificamos que los campos obligatorios no estén vacíos
-    if (!fullNameTrimmed || !emailTrimmed || !passwordTrimmed) {
-      Alert.alert('Error de registro', 'Por favor, rellena nombre, correo y contraseña.');
+    if (!fullNameTrimmed || !emailTrimmed || !passwordTrimmed || !secretWordTrimmed) {
+      Alert.alert('Error de registro', 'Por favor, rellena nombre, correo, contraseña y palabra clave.');
       return;
     }
 
@@ -66,7 +68,7 @@ export default function RegistroScreen({ navigation }) {
 
     // Intentamos realizar el registro llamando al controlador
     try {
-      await AuthController.registrar(emailTrimmed, passwordTrimmed, fullNameTrimmed, phone.trim());
+      await AuthController.registrar(emailTrimmed, passwordTrimmed, fullNameTrimmed, phone.trim(), secretWordTrimmed);
 
       Alert.alert('Registro exitoso', `¡Bienvenido(a) ${fullNameTrimmed}!`, [
         // Redirigimos al Login tras el éxito
