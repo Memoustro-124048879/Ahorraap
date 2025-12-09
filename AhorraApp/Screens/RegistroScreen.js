@@ -54,7 +54,7 @@ export default function RegistroScreen({ navigation }) {
     }
 
     try {
-      await AuthController.registrar(emailTrimmed, passwordTrimmed, fullNameTrimmed);
+      await AuthController.registrar(emailTrimmed, passwordTrimmed, fullNameTrimmed, phone.trim());
       Alert.alert('Registro exitoso', `¡Bienvenido(a) ${fullNameTrimmed}!`, [
         { text: 'OK', onPress: () => navigation.navigate('LoginScreen') }
       ]);

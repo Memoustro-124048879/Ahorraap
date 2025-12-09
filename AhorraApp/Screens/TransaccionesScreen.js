@@ -20,6 +20,8 @@ import Colors from '../constants/colors';
 export default function TransaccionesScreen({ navigation }) {
   const { usuario } = useUser();
   const [transacciones, setTransacciones] = useState([]);
+  // Estado para edición
+  const [transaccionEditando, setTransaccionEditando] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   // Formulario
@@ -38,12 +40,12 @@ export default function TransaccionesScreen({ navigation }) {
     if (usuario) {
       try {
         let datos;
+        // Si hay filtros activos, usar el método de filtrado
         if (filtroCategoria || filtroFecha) {
           datos = await TransaccionController.filtrarTransacciones(usuario.id, filtroCategoria, filtroFecha);
         } else {
           datos = await TransaccionController.obtenerTransacciones(usuario.id);
         }
-        // Asegurar que datos sea un array
         setTransacciones(Array.isArray(datos) ? datos : []);
       } catch (error) {
         console.error(error);
@@ -58,6 +60,16 @@ export default function TransaccionesScreen({ navigation }) {
     }, [usuario, filtroCategoria, filtroFecha])
   );
 
+  const abrirModalEditar = (item) => {
+    setTransaccionEditando(item);
+    setMonto(item.monto.toString());
+    setTipo(item.tipo);
+    setCategoria(item.categoria);
+    setFecha(item.fecha);
+    setDescripcion(item.descripcion || '');
+    setModalVisible(true);
+  };
+
   const handleGuardar = async () => {
     if (!monto || !categoria || !fecha) {
       Alert.alert("Error", "Monto, categoría y fecha son obligatorios");
@@ -65,25 +77,42 @@ export default function TransaccionesScreen({ navigation }) {
     }
 
     try {
-      const resultado = await TransaccionController.agregarTransaccion(
-        usuario.id,
-        monto,
-        tipo,
-        categoria,
-        fecha,
-        descripcion
-      );
-
-      if (resultado.alerta) {
-        Alert.alert("Presupuesto Excedido", resultado.alerta);
+      if (transaccionEditando) {
+        // Editar existente
+        await TransaccionController.editarTransaccion(
+          transaccionEditando.id,
+          monto,
+          tipo,
+          categoria,
+          fecha,
+          descripcion
+        );
+        Alert.alert("Éxito", "Transacción actualizada correctamente");
       } else {
-        Alert.alert("Éxito", "Transacción guardada correctamente");
+        // Crear nueva
+        const resultado = await TransaccionController.agregarTransaccion(
+          usuario.id,
+          monto,
+          tipo,
+          categoria,
+          fecha,
+          descripcion
+        );
+
+        if (resultado.alerta) {
+          // Nota: Con el bloqueo estricto, esto quizás ya no se use igual, 
+          // pero mantenemos compatibilidad por si el controlador devuelve alerta en vez de error.
+          Alert.alert("Aviso", resultado.alerta);
+        } else {
+          Alert.alert("Éxito", "Transacción guardada correctamente");
+        }
       }
 
       setModalVisible(false);
       limpiarFormulario();
       cargarTransacciones();
     } catch (error) {
+      // Aquí caerá el error de presupuesto excedido
       Alert.alert("Error", error.message);
     }
   };
@@ -111,6 +140,7 @@ export default function TransaccionesScreen({ navigation }) {
   };
 
   const limpiarFormulario = () => {
+    setTransaccionEditando(null);
     setMonto('');
     setTipo('gasto');
     setCategoria('');
@@ -120,8 +150,10 @@ export default function TransaccionesScreen({ navigation }) {
 
   const toggleFiltros = () => {
     setMostrarFiltros(!mostrarFiltros);
-    if (mostrarFiltros) {
-      // Reset filtros al cerrar
+    if (!mostrarFiltros) {
+      // Al abrir no limpiamos, mantenemos el estado.
+    } else {
+      // Al cerrar limpiamos? Depende UX. Mejor limpiar para resetear lista.
       setFiltroCategoria('');
       setFiltroFecha('');
     }
@@ -137,14 +169,22 @@ export default function TransaccionesScreen({ navigation }) {
           <Text style={estilos.textoDescripcion}>{item.descripcion || ''}</Text>
           <Text style={estilos.textoFecha}>{item.fecha || ''}</Text>
         </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          <Text style={[estilos.textoMonto, { color: item.tipo === 'ingreso' ? Colors.exito : Colors.error }]}>
-            {item.tipo === 'ingreso' ? '+' : '-'}${Number(item.monto || 0).toFixed(2)}
-          </Text>
-          <Text style={estilos.textoTipo}>{(item.tipo || '').toUpperCase()}</Text>
-          <TouchableOpacity onPress={() => handleEliminar(item.id)}>
-            <Ionicons name="trash-outline" size={20} color={Colors.error} style={{ marginTop: 5 }} />
-          </TouchableOpacity>
+        <View style={{ alignItems: 'flex-end', gap: 10 }}>
+          <View>
+            <Text style={[estilos.textoMonto, { color: item.tipo === 'ingreso' ? Colors.exito : Colors.error }]}>
+              {item.tipo === 'ingreso' ? '+' : '-'}${Number(item.monto || 0).toFixed(2)}
+            </Text>
+            <Text style={estilos.textoTipo}>{(item.tipo || '').toUpperCase()}</Text>
+          </View>
+
+          <View style={{ flexDirection: 'row', gap: 15 }}>
+            <TouchableOpacity onPress={() => abrirModalEditar(item)}>
+              <Ionicons name="pencil" size={20} color={Colors.moradoPrimario} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleEliminar(item.id)}>
+              <Ionicons name="trash-outline" size={20} color={Colors.error} />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     );
@@ -208,7 +248,7 @@ export default function TransaccionesScreen({ navigation }) {
       >
         <View style={estilos.modalContainer}>
           <View style={estilos.modalContent}>
-            <Text style={estilos.modalTitle}>Nueva Transacción</Text>
+            <Text style={estilos.modalTitle}>{transaccionEditando ? 'Editar Transacción' : 'Nueva Transacción'}</Text>
 
             <View style={estilos.selectorTipo}>
               <TouchableOpacity
@@ -262,7 +302,7 @@ export default function TransaccionesScreen({ navigation }) {
                 style={[estilos.botonModal, { backgroundColor: Colors.moradoPrimario }]}
                 onPress={handleGuardar}
               >
-                <Text style={estilos.textoBoton}>Guardar</Text>
+                <Text style={estilos.textoBoton}>{transaccionEditando ? 'Actualizar' : 'Guardar'}</Text>
               </TouchableOpacity>
             </View>
           </View>
