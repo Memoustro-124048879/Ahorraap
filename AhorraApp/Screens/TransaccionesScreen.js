@@ -98,19 +98,52 @@ export default function TransaccionesScreen({ navigation }) {
         Alert.alert("Éxito", "Transacción actualizada correctamente");
       } else {
         // Modo Creación
-        const resultado = await TransaccionController.agregarTransaccion(
-          usuario.id,
-          monto,
-          tipo,
-          categoria,
-          fecha,
-          descripcion
-        );
+        // Función auxiliar para llamar al controller con opción de ignorar validación
+        const crearConValidacion = async (ignorar = false) => {
+          return await TransaccionController.agregarTransaccion(
+            usuario.id,
+            monto,
+            tipo,
+            categoria,
+            fecha,
+            descripcion,
+            ignorar // flag para saltar chequeo
+          );
+        };
 
-        if (resultado.alerta) {
-          Alert.alert("Aviso", resultado.alerta);
-        } else {
-          Alert.alert("Éxito", "Transacción guardada correctamente");
+        try {
+          const resultado = await crearConValidacion(false);
+          if (resultado.alerta) Alert.alert("Aviso", resultado.alerta);
+          else Alert.alert("Éxito", "Transacción guardada correctamente");
+        } catch (err) {
+          if (err.isBudgetWarning) {
+            // Es una advertencia de presupuesto
+            Alert.alert(
+              "Presupuesto Excedido",
+              `${err.message}\n¿Deseas continuar de todas formas?`,
+              [
+                { text: "Cancelar", style: "cancel" },
+                {
+                  text: "Continuar",
+                  onPress: async () => {
+                    try {
+                      await crearConValidacion(true); // Reintentar ignorando presupuesto
+                      Alert.alert("Éxito", "Transacción guardada (Presupuesto Excedido)");
+                      setModalVisible(false);
+                      limpiarFormulario();
+                      cargarTransacciones();
+                    } catch (retryErr) {
+                      Alert.alert("Error", retryErr.message);
+                    }
+                  }
+                }
+              ]
+            );
+            return; // Salimos para no ejecutar el código de éxito/cierre de abajo todavía
+          } else {
+            // Error normal
+            throw err;
+          }
         }
       }
 
@@ -118,7 +151,7 @@ export default function TransaccionesScreen({ navigation }) {
       limpiarFormulario();
       cargarTransacciones(); // Actualizamos la lista
     } catch (error) {
-      // Capturamos errores como presupuesto excedido
+      // Capturamos errores generales
       Alert.alert("Error", error.message);
     }
   };

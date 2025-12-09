@@ -39,7 +39,8 @@ export default function PresupuestosScreen({ navigation }) {
                 if (filtroCategoria || filtroMes) {
                     datos = await PresupuestoController.filtrarPresupuestos(usuario.id, filtroCategoria, filtroMes);
                 } else {
-                    datos = await PresupuestoController.obtenerPresupuestos(usuario.id);
+                    // Usamos la nueva función que incluye gastado y restante
+                    datos = await PresupuestoController.obtenerPresupuestosConProgreso(usuario.id);
                 }
                 setPresupuestos(Array.isArray(datos) ? datos : []);
             } catch (error) {
@@ -140,9 +141,22 @@ export default function PresupuestosScreen({ navigation }) {
                 <View style={{ flex: 1 }}>
                     <Text style={estilos.textoCategoria}>{item.categoria}</Text>
                     <Text style={estilos.textoMes}>{item.mes}</Text>
+                    {item.restante !== undefined && (
+                        <Text style={[
+                            estilos.textoRestante,
+                            { color: item.restante < 0 ? Colors.error : Colors.exito }
+                        ]}>
+                            Restante: ${Number(item.restante).toFixed(2)}
+                        </Text>
+                    )}
                 </View>
                 <View style={{ alignItems: 'flex-end', flexDirection: 'row', gap: 10 }}>
-                    <Text style={estilos.textoMonto}>${Number(item.monto).toFixed(2)}</Text>
+                    <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={estilos.textoMonto}>Límite: ${Number(item.monto).toFixed(2)}</Text>
+                        {item.gastado !== undefined && (
+                            <Text style={estilos.textoGastado}>Gastado: ${Number(item.gastado).toFixed(2)}</Text>
+                        )}
+                    </View>
                     <TouchableOpacity onPress={() => handleEditar(item)}>
                         <Ionicons name="pencil" size={20} color={Colors.grisOscuro} style={{ marginTop: 5 }} />
                     </TouchableOpacity>
@@ -285,7 +299,9 @@ const estilos = StyleSheet.create({
     },
     textoCategoria: { fontWeight: 'bold', fontSize: 16, color: Colors.grisOscuro },
     textoMes: { fontSize: 14, color: Colors.grisTexto },
+    textoRestante: { fontSize: 14, fontWeight: 'bold', marginTop: 2 },
     textoMonto: { fontWeight: 'bold', fontSize: 16, color: Colors.moradoPrimario },
+    textoGastado: { fontSize: 12, color: Colors.grisTexto },
     vacio: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 50 },
     textoSuave: { color: Colors.grisTexto },
 

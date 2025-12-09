@@ -5,23 +5,26 @@ import { PresupuestoController } from './PresupuestoController';
 export const TransaccionController = {
 
     // Crea una nueva transacción verificando antes el presupuesto si es un gasto
-    agregarTransaccion: async (usuarioId, monto, tipo, categoria, fecha, descripcion) => {
+    agregarTransaccion: async (usuarioId, monto, tipo, categoria, fecha, descripcion, ignorarPresupuesto = false) => {
         if (!usuarioId || !monto || !tipo || !categoria || !fecha) {
             throw new Error('Todos los campos son obligatorios');
         }
 
         const montoNum = parseFloat(monto);
 
-        // Bloqueo estricto de presupuesto para gastos
-        if (tipo === 'gasto') {
+        // Bloqueo estricto de presupuesto para gastos (salvo que se confirme ignorar)
+        if (tipo === 'gasto' && !ignorarPresupuesto) {
             const mes = fecha.substring(0, 7); // Formato YYYY-MM
 
             // Verificamos si la nueva transacción excedería el límite
-            const errorPresupuesto = await PresupuestoController.verificarPresupuesto(usuarioId, categoria, mes, montoNum);
+            const resultado = await PresupuestoController.verificarPresupuesto(usuarioId, categoria, mes, montoNum);
 
-            if (errorPresupuesto) {
-                // Si excede, detenemos el proceso lanzando un error
-                throw new Error(errorPresupuesto);
+            if (resultado.excedido) {
+                // Lanzamos error especial para que la UI pregunte
+                const error = new Error(resultado.mensaje);
+                error.isBudgetWarning = true;
+                error.budgetDetails = resultado;
+                throw error;
             }
         }
 

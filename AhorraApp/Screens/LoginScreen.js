@@ -99,7 +99,7 @@ const LoginScreen = ({ navigation }) => {
 
         {/* Campo de Correo */}
         <View style={[styles.inputContainer, { backgroundColor: colorGrisInput }]}>
-          <Text style={styles.icon}>👤</Text>
+          <Text style={styles.icon}></Text>
           <TextInput
             style={styles.input}
             placeholder="Correo electrónico"
@@ -113,7 +113,7 @@ const LoginScreen = ({ navigation }) => {
 
         {/* Campo de Contraseña */}
         <View style={[styles.inputContainer, { backgroundColor: colorGrisInput }]}>
-          <Text style={styles.icon}>🔒</Text>
+          <Text style={styles.icon}></Text>
           <TextInput
             style={styles.input}
             placeholder="Contraseña"

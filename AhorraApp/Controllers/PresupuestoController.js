@@ -20,6 +20,25 @@ export const PresupuestoController = {
         return await PresupuestoModel.obtenerTodosPorUsuario(usuarioId);
     },
 
+    // Nuevo: Obtiene presupuestos con el cálculo de cuánto se ha gastado
+    obtenerPresupuestosConProgreso: async (usuarioId) => {
+        const presupuestos = await PresupuestoModel.obtenerTodosPorUsuario(usuarioId);
+
+        // Para cada presupuesto, calculamos lo gastado
+        const resultados = await Promise.all(presupuestos.map(async (p) => {
+            const transacciones = await TransaccionModel.filtrar(usuarioId, p.categoria, p.mes);
+            const totalGastado = transacciones.reduce((sum, t) => sum + (t.tipo === 'gasto' ? t.monto : 0), 0);
+
+            return {
+                ...p,
+                gastado: totalGastado,
+                restante: p.monto - totalGastado
+            };
+        }));
+
+        return resultados;
+    },
+
     editarPresupuesto: async (id, monto, categoria, mes) => {
         return await PresupuestoModel.actualizar(id, parseFloat(monto), categoria, mes);
     },
@@ -35,16 +54,27 @@ export const PresupuestoController = {
     verificarPresupuesto: async (usuarioId, categoria, mes, montoNuevaTransaccion) => {
         const presupuesto = await PresupuestoModel.obtenerPorCategoriaYMes(usuarioId, categoria, mes);
 
-        if (!presupuesto) return null; // No hay presupuesto asignado, no se bloquea (o se asume infinito/0 según regla de negocio? Asumimos libre si no hay presupuesto definido)
+        if (!presupuesto) return { excedido: false };
 
         // Obtener gastos actuales de esa categoría en el mes
         const transacciones = await TransaccionModel.filtrar(usuarioId, categoria, mes);
         const totalGastado = transacciones.reduce((sum, t) => sum + (t.tipo === 'gasto' ? t.monto : 0), 0);
 
-        if (totalGastado + montoNuevaTransaccion > presupuesto.monto) {
-            return `El presupuesto para ${categoria} es de $${presupuesto.monto}. Llevas gastado $${totalGastado}. Esta transacción de $${montoNuevaTransaccion} excedería el límite.`;
+        const nuevoTotal = totalGastado + montoNuevaTransaccion;
+        const restanteActual = presupuesto.monto - totalGastado;
+
+        if (nuevoTotal > presupuesto.monto) {
+            return {
+                excedido: true,
+                presupuesto: presupuesto.monto,
+                gastado: totalGastado,
+                restante: restanteActual,
+                diferencia: nuevoTotal - presupuesto.monto,
+                nuevoTotal: nuevoTotal,
+                mensaje: `El presupuesto para ${categoria} es de $${presupuesto.monto}. Te quedan $${restanteActual}. Esta transacción te dejaría en -$${(nuevoTotal - presupuesto.monto).toFixed(2)}.`
+            };
         }
 
-        return null; // Todo OK
+        return { excedido: false };
     }
 };

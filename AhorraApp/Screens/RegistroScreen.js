@@ -96,24 +96,24 @@ export default function RegistroScreen({ navigation }) {
 
         {/* Campos del Formulario */}
         <CustomInput
-          placeholder="👤 Nombre completo"
+          placeholder="Nombre completo"
           value={fullName}
           onChangeText={setFullName}
         />
         <CustomInput
-          placeholder="✉️ Correo electrónico"
+          placeholder="Correo electrónico"
           keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
         />
         <CustomInput
-          placeholder="📞 Número de teléfono (Opcional)"
+          placeholder="Número de teléfono (Opcional)"
           keyboardType="phone-pad"
           value={phone}
           onChangeText={setPhone}
         />
         <CustomInput
-          placeholder="🔐 Contraseña"
+          placeholder="Contraseña"
           secureTextEntry={true}
           value={password}
           onChangeText={setPassword}
