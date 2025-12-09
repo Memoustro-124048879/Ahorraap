@@ -8,102 +8,141 @@ import {
   Image,
   TextInput,
   Alert,
-  Modal, 
+  Modal,
 } from 'react-native';
+import { AuthController } from '../Controllers/AuthController';
+import { useUser } from '../Contexts/UserContext';
+import Colors from '../constants/colors';
 
-const logoAhorrapp = require('../assets/full.jpg');
+// Importamos el logo de la aplicación
+const logoAhorrapp = require('../assets/ahorra_app_logo.png');
 
+// Pantalla de Inicio de Sesión
 const LoginScreen = ({ navigation }) => {
+  // Estado local para los campos de texto
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    if (email.trim() === '') {
-      Alert.alert('Error de ingreso', 'Por favor, ingresa tu correo o número de teléfono.');
+  // Accedemos a la función 'setUsuario' del contexto global para guardar al usuario cuando inicie sesión
+  const { setUsuario } = useUser();
+
+  // Función principal para procesar el ingreso
+  const handleLogin = async () => {
+    // Quitamos espacios en blanco accidentales
+    const emailTrimmed = email.trim();
+    const passwordTrimmed = password.trim();
+
+    // Validamos que los campos no estén vacíos
+    if (emailTrimmed === '') {
+      Alert.alert('Error de ingreso', 'Por favor, ingresa tu correo.');
       return;
     }
 
-    if (password.trim() === '') {
+    if (passwordTrimmed === '') {
       Alert.alert('Error de ingreso', 'Por favor, ingresa tu contraseña.');
       return;
     }
 
-    navigation.navigate('TransaccionesScreen'); 
+    try {
+      // Intentamos hacer login con el Controlador
+      const usuario = await AuthController.login(emailTrimmed, passwordTrimmed);
+
+      // Si funciona, guardamos el usuario en el estado global de la App
+      setUsuario(usuario);
+      console.log('Usuario logueado:', usuario);
+
+      // Navegamos a la pantalla principal (Dashboard)
+      navigation.navigate('MainApp', { screen: 'Dashboard' });
+    } catch (error) {
+      // Si falla (contraseña incorrecta, usuario no existe), mostramos el error
+      Alert.alert('Error de ingreso', error.message);
+    }
   };
-  
+
+  // Estados para el modal de recuperación de contraseña
   const [modalVisible, setModalVisible] = useState(false);
   const [emailRecuperacion, setEmailRecuperacion] = useState('');
 
-  const colorVerdePrincipal = '#469A49';
-  const colorGrisInput = '#EAEAEA';
-  const colorGrisTexto = '#A9A9A9';
-  const colorLink = '#007BFF';
+  // Definimos colores locales basados en nuestra paleta global para mantener consistencia
+  const colorBotonAccion = Colors.cianAccion;
+  const colorGrisInput = Colors.fondoSecundario;
+  const colorGrisTexto = Colors.grisTexto;
+  const colorLink = Colors.cianAccion;
 
-  const handleEnviarRecuperacion = () => {
+  // Función simulada para recuperar contraseña
+  const handleEnviarRecuperacion = async () => {
     if (!emailRecuperacion) {
       Alert.alert('Error', 'Por favor, ingresa un correo válido.');
       return;
     }
-    
-    console.log('Enviando instrucciones a:', emailRecuperacion);
 
-    setModalVisible(false);
-    setEmailRecuperacion('');
-
-    Alert.alert(
-      '¡Revisa tu correo!',
-      `Se han enviado las instrucciones de recuperación a ${emailRecuperacion}.`
-    );
+    try {
+      await AuthController.recuperarPassword(emailRecuperacion.trim());
+      setModalVisible(false); // Cerramos el modal
+      setEmailRecuperacion(''); // Limpiamos el campo
+      Alert.alert(
+        '¡Revisa tu correo!',
+        `Se han enviado las instrucciones de recuperación a ${emailRecuperacion}.`
+      );
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-    
+
       <View style={styles.mainContainer}>
-        
+
+        {/* Logo Principal */}
         <Image source={logoAhorrapp} style={styles.logoImage} />
 
+        {/* Campo de Correo */}
         <View style={[styles.inputContainer, { backgroundColor: colorGrisInput }]}>
-          <Text style={styles.icon}>👤</Text>
+          <Text style={styles.icon}></Text>
           <TextInput
             style={styles.input}
-            placeholder="Correo/Num telefono"
+            placeholder="Correo electrónico"
             placeholderTextColor={colorGrisTexto}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
-            autoCapitalize="none"
+            autoCapitalize="none" // Importante: emails no llevan mayúsculas
           />
         </View>
 
+        {/* Campo de Contraseña */}
         <View style={[styles.inputContainer, { backgroundColor: colorGrisInput }]}>
-          <Text style={styles.icon}>🔒</Text>
+          <Text style={styles.icon}></Text>
           <TextInput
             style={styles.input}
             placeholder="Contraseña"
             placeholderTextColor={colorGrisTexto}
             value={password}
             onChangeText={setPassword}
-            secureTextEntry 
+            secureTextEntry // Oculta los caracteres
           />
         </View>
 
-        <TouchableOpacity 
-          style={[styles.loginButton, { backgroundColor: colorVerdePrincipal }]}
+        {/* Botón de Ingresar */}
+        <TouchableOpacity
+          style={[styles.loginButton, { backgroundColor: colorBotonAccion }]}
           onPress={handleLogin}
         >
           <Text style={styles.loginButtonText}>Ingresar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          onPress={() => setModalVisible(true)} 
+        {/* Enlace Olvidé contraseña */}
+        <TouchableOpacity
+          onPress={() => setModalVisible(true)}
         >
           <Text style={[styles.linkText, { color: colorLink, marginTop: 25 }]}>
             ¿Olvidaste tu contraseña?
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => console.log('Ir a registrarse')}>
+        {/* Enlace Registro */}
+        <TouchableOpacity onPress={() => navigation.navigate('RegistroScreen')}>
           <Text style={[styles.linkText, { color: colorLink, marginTop: 15 }]}>
             ¿No tienes una cuenta? Regístrate aquí
           </Text>
@@ -111,6 +150,7 @@ const LoginScreen = ({ navigation }) => {
 
       </View>
 
+      {/* Modal de Recuperación */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -119,9 +159,7 @@ const LoginScreen = ({ navigation }) => {
           setModalVisible(false);
         }}
       >
-        
         <View style={styles.modalContainer}>
-          
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Recuperar Contraseña</Text>
             <Text style={styles.modalSubtitle}>
@@ -138,16 +176,15 @@ const LoginScreen = ({ navigation }) => {
               autoCapitalize="none"
             />
 
-            
             <View style={styles.modalButtonContainer}>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: '#6c757d' }]}
+                style={[styles.modalButton, { backgroundColor: Colors.grisOscuro }]}
                 onPress={() => setModalVisible(false)}
               >
                 <Text style={styles.modalButtonText}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: colorVerdePrincipal }]}
+                style={[styles.modalButton, { backgroundColor: colorBotonAccion }]}
                 onPress={handleEnviarRecuperacion}
               >
                 <Text style={styles.modalButtonText}>Enviar</Text>
@@ -166,7 +203,7 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.blanco,
   },
   mainContainer: {
     flex: 1,
@@ -208,7 +245,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   loginButtonText: {
-    color: '#FFFFFF',
+    color: Colors.blanco,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -216,40 +253,37 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 
+  // Estilos del Modal
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: Colors.overlay, // Fondo semitransparente
   },
   modalContent: {
     width: '85%',
-    backgroundColor: 'white',
+    backgroundColor: Colors.blanco,
     borderRadius: 15,
     padding: 25,
     alignItems: 'center',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    elevation: 10, // Sombra en Android
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#333',
+    color: Colors.grisOscuro,
   },
   modalSubtitle: {
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 20,
-    color: '#555',
+    color: Colors.grisTexto,
   },
   modalInput: {
     width: '100%',
     height: 45,
-    borderColor: '#DDD',
+    borderColor: Colors.borde,
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 10,
@@ -270,7 +304,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   modalButtonText: {
-    color: 'white',
+    color: Colors.blanco,
     fontWeight: 'bold',
     fontSize: 16
   }
