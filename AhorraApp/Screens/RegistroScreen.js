@@ -113,6 +113,11 @@ export default function RegistroScreen({ navigation }) {
           onChangeText={setPhone}
         />
         <CustomInput
+          placeholder="Palabra Clave (ej. Comida favorita)"
+          value={secretWord}
+          onChangeText={setSecretWord}
+        />
+        <CustomInput
           placeholder="Contraseña"
           secureTextEntry={true}
           value={password}

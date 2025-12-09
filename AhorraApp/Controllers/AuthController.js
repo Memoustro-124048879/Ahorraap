@@ -8,10 +8,10 @@ import { UsuarioModel } from '../Models/UsuarioModel';
 export const AuthController = {
 
     // 1. REGISTRAR UN NUEVO USUARIO
-    registrar: async (email, password, nombre, telefono) => {
+    registrar: async (email, password, nombre, telefono, palabraClave) => {
         // Regla 1: Todo es obligatorio (menos el teléfono que aquí no validamos estricto).
-        if (!email || !password || !nombre) {
-            throw new Error('Todos los campos son obligatorios');
+        if (!email || !password || !nombre || !palabraClave) {
+            throw new Error('Todos los campos son obligatorios, incluyendo la palabra clave');
         }
 
         // Regla 2: No puede haber dos usuarios con el mismo correo.
@@ -21,7 +21,7 @@ export const AuthController = {
         }
 
         // Si pasamos las reglas, le decimos al Modelo que cree el usuario.
-        const usuarioId = await UsuarioModel.crear(email, password, nombre, telefono);
+        const usuarioId = await UsuarioModel.crear(email, password, nombre, telefono, palabraClave);
 
         // Devolvemos los datos del nuevo usuario para que la App sepa quién es.
         return { id: usuarioId, email, nombre, telefono };
@@ -51,14 +51,30 @@ export const AuthController = {
     },
 
     // 3. RECUPERAR CONTRASEÑA
-    recuperarPassword: async (email) => {
+    // Fase A: Verificar si el usuario y la palabra clave coinciden
+    verificarCredencialesRecuperacion: async (email, palabraClave) => {
+        if (!email || !palabraClave) {
+            throw new Error('Correo y palabra clave son obligatorios');
+        }
+
         const usuario = await UsuarioModel.buscarPorEmail(email);
         if (!usuario) {
             throw new Error('No existe una cuenta con este correo');
         }
 
-        // En una app real, aquí conectaríamos con un servicio de Email para enviar un link.
-        // Como es un proyecto local/demo, solo simulamos que salió bien devolviendo 'true'.
-        return true;
+        // Validamos la palabra clave (ignorando mayúsculas/minúsculas para ser amables)
+        // Ojo: usuario.palabra_clave podría ser undefined en usuarios viejos
+        if (!usuario.palabra_clave || usuario.palabra_clave.trim().toLowerCase() !== palabraClave.trim().toLowerCase()) {
+            throw new Error('La palabra clave es incorrecta');
+        }
+
+        // Retornamos el ID para usarlo en el siguiente paso (cambiar password)
+        return usuario.id;
+    },
+
+    // Fase B: Cambiar la contraseña una vez verificado
+    resetearPassword: async (usuarioId, nuevaPassword) => {
+        if (!nuevaPassword) throw new Error('La nueva contraseña es obligatoria');
+        return await UsuarioModel.actualizarPassword(usuarioId, nuevaPassword);
     }
 };

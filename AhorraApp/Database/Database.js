@@ -97,7 +97,8 @@ export const initDatabase = async () => {
             password TEXT NOT NULL,
             nombre TEXT,
             telefono TEXT,
-            foto_perfil TEXT
+            foto_perfil TEXT,
+            palabra_clave TEXT
           );
 
           CREATE TABLE IF NOT EXISTS transacciones (
@@ -128,6 +129,10 @@ export const initDatabase = async () => {
 
         try {
           await db.execAsync('ALTER TABLE usuarios ADD COLUMN telefono TEXT;');
+        } catch (e) { /* Ignorar si ya existe */ }
+
+        try {
+          await db.execAsync('ALTER TABLE usuarios ADD COLUMN palabra_clave TEXT;');
         } catch (e) { /* Ignorar si ya existe */ }
 
         console.log('Base de datos SQLite inicializada correctamente');

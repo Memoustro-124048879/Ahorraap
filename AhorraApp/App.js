@@ -10,6 +10,7 @@ import { UserProvider } from './Contexts/UserContext';
 import BienvenidaScreen from './Screens/BienvenidaScreen';
 import LoginScreen from './Screens/LoginScreen';
 import RegistroScreen from './Screens/RegistroScreen';
+import RecuperarPasswordScreen from './Screens/RecuperarPasswordScreen';
 import DashboardScreen from './Screens/DashboardScreen';
 import TransaccionesScreen from './Screens/TransaccionesScreen';
 import GraficasScreen from './Screens/GraficasScreen';
@@ -67,6 +68,7 @@ export default function App() {
           <Stack.Screen name="BienvenidaScreen" component={BienvenidaScreen} options={{ headerShown: false }} />
           <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
           <Stack.Screen name="RegistroScreen" component={RegistroScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="RecuperarPasswordScreen" component={RecuperarPasswordScreen} options={{ headerShown: false }} />
 
           {/* App Stack */}
           <Stack.Screen name="MainApp" component={AppTabs} options={{ headerShown: false }} />

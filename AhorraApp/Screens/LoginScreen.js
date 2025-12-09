@@ -133,19 +133,13 @@ const LoginScreen = ({ navigation }) => {
         </TouchableOpacity>
 
         {/* Enlace Olvidé contraseña */}
-        <TouchableOpacity
-          onPress={() => setModalVisible(true)}
-        >
-          <Text style={[styles.linkText, { color: colorLink, marginTop: 25 }]}>
-            ¿Olvidaste tu contraseña?
-          </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("RecuperarPasswordScreen")}>
+          <Text style={[styles.linkText, { color: colorLink, marginTop: 25 }]}>¿Olvidaste tu contraseña?</Text>
         </TouchableOpacity>
 
         {/* Enlace Registro */}
-        <TouchableOpacity onPress={() => navigation.navigate('RegistroScreen')}>
-          <Text style={[styles.linkText, { color: colorLink, marginTop: 15 }]}>
-            ¿No tienes una cuenta? Regístrate aquí
-          </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("RegistroScreen")}>
+          <Text style={[styles.linkText, { color: colorLink, marginTop: 15 }]}>¿No tienes cuenta? Regístrate</Text>
         </TouchableOpacity>
 
       </View>

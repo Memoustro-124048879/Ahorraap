@@ -29,21 +29,21 @@ const webQuery = {
 export const UsuarioModel = {
 
     // Crea un nuevo registro de usuario en la base de datos
-    crear: async (email, password, nombre, telefono) => {
+    crear: async (email, password, nombre, telefono, palabraClave) => {
         try {
             // Lógica específica para WEB
             if (Platform.OS === 'web') {
                 const data = webQuery.getData();
                 const id = data.usuarios.length + 1;
                 // Agregamos el nuevo usuario al array en memoria
-                data.usuarios.push({ id, email, password, nombre, telefono, foto_perfil: null });
+                data.usuarios.push({ id, email, password, nombre, telefono, foto_perfil: null, palabra_clave: palabraClave });
                 webQuery.setData(data); // Guardamos en localStorage
                 return id;
             } else {
                 // Lógica específica para CELULAR (SQLite)
                 const result = await db.runAsync(
-                    'INSERT INTO usuarios (email, password, nombre, telefono) VALUES (?, ?, ?, ?)',
-                    [email, password, nombre, telefono]
+                    'INSERT INTO usuarios (email, password, nombre, telefono, palabra_clave) VALUES (?, ?, ?, ?, ?)',
+                    [email, password, nombre, telefono, palabraClave]
                 );
                 return result.lastInsertRowId;
             }
